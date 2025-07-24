@@ -63,7 +63,7 @@ class App {
     // Body parsing middleware
     this.app.use(express.json({ 
       limit: '10mb',
-      verify: (req, res, buf) => {
+      verify: (req: any, res: any, buf: Buffer) => {
         try {
           JSON.parse(buf.toString());
         } catch (e) {

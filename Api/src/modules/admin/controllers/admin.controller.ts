@@ -14,7 +14,6 @@ export class AdminController {
       const pagination = calculatePagination(page, limit, total);
 
       res.status(200).json(formatResponse(
-        true,
         'Users retrieved successfully',
         users,
         pagination
@@ -30,7 +29,6 @@ export class AdminController {
       const user = await AdminService.getUserById(id);
 
       res.status(200).json(formatResponse(
-        true,
         'User retrieved successfully',
         user
       ));
@@ -47,7 +45,6 @@ export class AdminController {
       const user = await AdminService.updateUserRole(id, role);
 
       res.status(200).json(formatResponse(
-        true,
         'User role updated successfully',
         user
       ));
@@ -62,7 +59,6 @@ export class AdminController {
       const user = await AdminService.deactivateUser(id);
 
       res.status(200).json(formatResponse(
-        true,
         'User deactivated successfully',
         user
       ));
@@ -76,7 +72,6 @@ export class AdminController {
       const stats = await AdminService.getDashboardStats();
 
       res.status(200).json(formatResponse(
-        true,
         'Dashboard statistics retrieved successfully',
         stats
       ));

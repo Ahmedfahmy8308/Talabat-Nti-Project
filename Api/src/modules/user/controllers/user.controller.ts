@@ -9,7 +9,6 @@ export class UserController {
       const user = req.user!;
 
       res.status(200).json(formatResponse(
-        true,
         'Profile retrieved successfully',
         user
       ));
@@ -26,7 +25,6 @@ export class UserController {
       const updatedUser = await UserService.updateUser(userId, updateData);
 
       res.status(200).json(formatResponse(
-        true,
         'Profile updated successfully',
         updatedUser
       ));
@@ -42,7 +40,6 @@ export class UserController {
       await UserService.deleteUser(userId);
 
       res.status(200).json(formatResponse(
-        true,
         'Account deleted successfully'
       ));
     } catch (error) {

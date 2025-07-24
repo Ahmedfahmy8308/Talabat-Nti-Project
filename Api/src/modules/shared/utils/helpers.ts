@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { IApiResponse, IPagination, IQueryParams } from '../interfaces';
 import { Document } from 'mongoose';
@@ -23,7 +23,7 @@ export class Helpers {
     }
     return jwt.sign(payload, secret, {
       expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m'
-    });
+    } as any);
   }
 
   static generateRefreshToken(payload: object): string {
@@ -33,7 +33,7 @@ export class Helpers {
     }
     return jwt.sign(payload, secret, {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
-    });
+    } as any);
   }
 
   static verifyToken(token: string): any {

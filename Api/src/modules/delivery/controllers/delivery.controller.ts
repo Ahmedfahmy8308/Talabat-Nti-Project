@@ -19,7 +19,6 @@ export class DeliveryController {
       const orders = await DeliveryService.getAvailableOrders(location, radius);
 
       res.status(200).json(formatResponse(
-        true,
         'Available orders retrieved successfully',
         orders
       ));
@@ -36,7 +35,6 @@ export class DeliveryController {
       const order = await DeliveryService.acceptOrder(orderId, deliveryPersonId);
 
       res.status(200).json(formatResponse(
-        true,
         'Order accepted successfully',
         order
       ));
@@ -62,7 +60,6 @@ export class DeliveryController {
       const pagination = calculatePagination(page, limit, total);
 
       res.status(200).json(formatResponse(
-        true,
         'Deliveries retrieved successfully',
         orders,
         pagination
@@ -81,7 +78,6 @@ export class DeliveryController {
       const order = await DeliveryService.updateDeliveryStatus(orderId, deliveryPersonId, status);
 
       res.status(200).json(formatResponse(
-        true,
         'Delivery status updated successfully',
         order
       ));
@@ -98,7 +94,6 @@ export class DeliveryController {
       const order = await DeliveryService.getOrderById(orderId, deliveryPersonId);
 
       res.status(200).json(formatResponse(
-        true,
         'Order retrieved successfully',
         order
       ));
@@ -114,7 +109,6 @@ export class DeliveryController {
       const stats = await DeliveryService.getDeliveryStats(deliveryPersonId);
 
       res.status(200).json(formatResponse(
-        true,
         'Delivery statistics retrieved successfully',
         stats
       ));

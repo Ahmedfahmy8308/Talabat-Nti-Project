@@ -12,7 +12,6 @@ export class RestaurantController {
       const meal = await RestaurantService.createMeal(restaurantId, mealData);
 
       res.status(201).json(formatResponse(
-        true,
         'Meal created successfully',
         meal
       ));
@@ -40,7 +39,6 @@ export class RestaurantController {
       const pagination = calculatePagination(page, limit, total);
 
       res.status(200).json(formatResponse(
-        true,
         'Meals retrieved successfully',
         meals,
         pagination
@@ -58,7 +56,6 @@ export class RestaurantController {
       const meal = await RestaurantService.getMealById(id, restaurantId);
 
       res.status(200).json(formatResponse(
-        true,
         'Meal retrieved successfully',
         meal
       ));
@@ -76,7 +73,6 @@ export class RestaurantController {
       const meal = await RestaurantService.updateMeal(id, restaurantId, updateData);
 
       res.status(200).json(formatResponse(
-        true,
         'Meal updated successfully',
         meal
       ));
@@ -93,7 +89,6 @@ export class RestaurantController {
       await RestaurantService.deleteMeal(id, restaurantId);
 
       res.status(200).json(formatResponse(
-        true,
         'Meal deleted successfully'
       ));
     } catch (error) {
@@ -109,7 +104,6 @@ export class RestaurantController {
       const meal = await RestaurantService.toggleMealAvailability(id, restaurantId);
 
       res.status(200).json(formatResponse(
-        true,
         'Meal availability updated successfully',
         meal
       ));
@@ -127,7 +121,6 @@ export class RestaurantController {
 
       if (!searchQuery) {
         res.status(400).json(formatResponse(
-          false,
           'Search query is required'
         ));
         return;
@@ -137,7 +130,6 @@ export class RestaurantController {
       const pagination = calculatePagination(page, limit, total);
 
       res.status(200).json(formatResponse(
-        true,
         'Search results retrieved successfully',
         meals,
         pagination
@@ -153,7 +145,6 @@ export class RestaurantController {
       const meals = await RestaurantService.getMealsByCategory(category);
 
       res.status(200).json(formatResponse(
-        true,
         'Meals retrieved successfully',
         meals
       ));
