@@ -2,9 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../shared/middlewares/error.middleware';
 
 // Auth-specific middleware
-export const checkPasswordStrength = (req: Request, res: Response, next: NextFunction): void => {
+export const checkPasswordStrength = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   const { password } = req.body;
-  
+
   if (!password) {
     return next();
   }
@@ -17,15 +21,24 @@ export const checkPasswordStrength = (req: Request, res: Response, next: NextFun
   const hasNonalphas = /\W/.test(password);
 
   if (password.length < minLength) {
-    throw new AppError(`Password must be at least ${minLength} characters long`, 400);
+    throw new AppError(
+      `Password must be at least ${minLength} characters long`,
+      400,
+    );
   }
 
   if (!hasUpperCase) {
-    throw new AppError('Password must contain at least one uppercase letter', 400);
+    throw new AppError(
+      'Password must contain at least one uppercase letter',
+      400,
+    );
   }
 
   if (!hasLowerCase) {
-    throw new AppError('Password must contain at least one lowercase letter', 400);
+    throw new AppError(
+      'Password must contain at least one lowercase letter',
+      400,
+    );
   }
 
   if (!hasNumbers) {
@@ -33,25 +46,32 @@ export const checkPasswordStrength = (req: Request, res: Response, next: NextFun
   }
 
   if (!hasNonalphas) {
-    throw new AppError('Password must contain at least one special character', 400);
+    throw new AppError(
+      'Password must contain at least one special character',
+      400,
+    );
   }
 
   next();
 };
 
-export const preventDuplicateEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const preventDuplicateEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const { email } = req.body;
-    
+
     if (!email) {
       return next();
     }
 
     // Import User model dynamically to avoid circular dependencies
-    const { default: User } = await import('../../user/schemas/user.schema');
-    
+    const { User } = await import('../../user/schemas');
+
     const existingUser = await User.findOne({ email: email.toLowerCase() });
-    
+
     if (existingUser) {
       throw new AppError('Email already exists', 409);
     }

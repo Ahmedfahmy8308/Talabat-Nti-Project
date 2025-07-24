@@ -1,513 +1,67 @@
-import { body, query } from 'express-validator';
-
-// Registration validation rules
-export const registerCustomerValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
-
-  body('firstName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('phone')
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
-
-  body('address.street')
-    .trim()
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Street address must be between 5 and 200 characters'),
-
-  body('address.city')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('City must be between 2 and 50 characters'),
-
-  body('address.state')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('State must be between 2 and 50 characters'),
-
-  body('address.zipCode')
-    .trim()
-    .isLength({ min: 5, max: 10 })
-    .withMessage('Zip code must be between 5 and 10 characters'),
-
-  body('address.coordinates.latitude')
-    .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
-
-  body('address.coordinates.longitude')
-    .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180')
-];
-
-export const registerRestaurantValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
-
-  body('name')
-    .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('Restaurant name must be between 2 and 100 characters'),
-
-  body('description')
-    .trim()
-    .isLength({ min: 10, max: 500 })
-    .withMessage('Description must be between 10 and 500 characters'),
-
-  body('address.street')
-    .trim()
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Street address must be between 5 and 200 characters'),
-
-  body('address.city')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('City must be between 2 and 50 characters'),
-
-  body('address.state')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('State must be between 2 and 50 characters'),
-
-  body('address.zipCode')
-    .trim()
-    .isLength({ min: 5, max: 10 })
-    .withMessage('Zip code must be between 5 and 10 characters'),
-
-  body('address.coordinates.latitude')
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude is required and must be between -90 and 90'),
-
-  body('address.coordinates.longitude')
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude is required and must be between -180 and 180'),
-
-  body('contactNumbers')
-    .isArray({ min: 1, max: 3 })
-    .withMessage('At least 1 and at most 3 contact numbers are required'),
-
-  body('contactNumbers.*')
-    .isMobilePhone('any')
-    .withMessage('Please provide valid phone numbers'),
-
-  body('cuisineTypes')
-    .isArray({ min: 1, max: 10 })
-    .withMessage('At least 1 and at most 10 cuisine types are required'),
-
-  body('cuisineTypes.*')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Each cuisine type must be between 2 and 50 characters'),
-
-  body('deliveryFee')
-    .isFloat({ min: 0, max: 50 })
-    .withMessage('Delivery fee must be between 0 and 50'),
-
-  body('minimumOrderAmount')
-    .isFloat({ min: 0, max: 1000 })
-    .withMessage('Minimum order amount must be between 0 and 1000'),
-
-  body('estimatedDeliveryTime')
-    .isInt({ min: 15, max: 120 })
-    .withMessage('Estimated delivery time must be between 15 and 120 minutes'),
-
-  body('businessHours')
-    .isArray({ min: 7, max: 7 })
-    .withMessage('Business hours for all 7 days of the week are required'),
-
-  body('businessHours.*.day')
-    .isIn(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
-    .withMessage('Invalid day of week'),
-
-  body('businessHours.*.openTime')
-    .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-    .withMessage('Invalid opening time format (HH:mm)'),
-
-  body('businessHours.*.closeTime')
-    .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-    .withMessage('Invalid closing time format (HH:mm)'),
-
-  body('businessHours.*.isClosed')
-    .isBoolean()
-    .withMessage('isClosed must be a boolean value')
-];
-
-export const registerDeliveryValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
-
-  body('firstName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('phone')
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
-
-  body('restaurantId')
-    .isMongoId()
-    .withMessage('Please provide a valid restaurant ID'),
-
-  body('vehicleType')
-    .isIn(['bike', 'motorcycle', 'car'])
-    .withMessage('Vehicle type must be bike, motorcycle, or car'),
-
-  body('vehicleDetails.make')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Vehicle make must be between 2 and 50 characters'),
-
-  body('vehicleDetails.model')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Vehicle model must be between 2 and 50 characters'),
-
-  body('vehicleDetails.year')
-    .optional()
-    .isInt({ min: 1990, max: new Date().getFullYear() + 1 })
-    .withMessage('Vehicle year must be valid'),
-
-  body('vehicleDetails.licensePlate')
-    .optional()
-    .trim()
-    .matches(/^[A-Z0-9-]{3,10}$/)
-    .withMessage('License plate format is invalid')
-];
-
-// Login validation
-export const loginValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('password')
-    .notEmpty()
-    .withMessage('Password is required')
-];
-
-// OTP validation
-export const otpValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('otp')
-    .isLength({ min: 6, max: 6 })
-    .withMessage('OTP must be 6 digits')
-    .isNumeric()
-    .withMessage('OTP must contain only numbers')
-];
-
-// Password reset validation
-export const resetPasswordValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('otp')
-    .isLength({ min: 6, max: 6 })
-    .withMessage('OTP must be 6 digits')
-    .isNumeric()
-    .withMessage('OTP must contain only numbers'),
-
-  body('newPassword')
-    .isLength({ min: 6 })
-    .withMessage('New password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number')
-];
-
-// Change password validation
-export const changePasswordValidation = [
-  body('currentPassword')
-    .notEmpty()
-    .withMessage('Current password is required'),
-
-  body('newPassword')
-    .isLength({ min: 6 })
-    .withMessage('New password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number')
-];
-
-// Update profile validations
-export const updateCustomerValidation = [
-  body('firstName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('phone')
-    .optional()
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
-
-  body('address.street')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Street address must be between 5 and 200 characters'),
-
-  body('address.city')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('City must be between 2 and 50 characters'),
-
-  body('address.state')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('State must be between 2 and 50 characters'),
-
-  body('address.zipCode')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 10 })
-    .withMessage('Zip code must be between 5 and 10 characters'),
-
-  body('address.coordinates.latitude')
-    .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
-
-  body('address.coordinates.longitude')
-    .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180')
-];
-
-// Query validation
-export const userQueryValidation = [
-  query('page')
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage('Page must be a positive integer'),
-
-  query('limit')
-    .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage('Limit must be between 1 and 100'),
-
-  query('search')
-    .optional()
-    .trim()
-    .isLength({ max: 100 })
-    .withMessage('Search term cannot exceed 100 characters'),
-
-  query('role')
-    .optional()
-    .isIn(['admin', 'customer', 'restaurant', 'delivery'])
-    .withMessage('Role must be one of: admin, customer, restaurant, delivery'),
-
-  query('sortBy')
-    .optional()
-    .isIn(['createdAt', 'updatedAt', 'email', 'firstName', 'lastName'])
-    .withMessage('Invalid sort field'),
-
-  query('sortOrder')
-    .optional()
-    .isIn(['asc', 'desc'])
-    .withMessage('Sort order must be asc or desc')
-];
-
-// Admin validation for user status updates
-export const updateUserStatusValidation = [
-  body('status')
-    .isIn(['active', 'inactive', 'banned'])
-    .withMessage('Status must be active, inactive, or banned'),
-
-  body('reason')
-    .optional()
-    .trim()
-    .isLength({ max: 200 })
-    .withMessage('Reason cannot exceed 200 characters')
-];
-
-// Restaurant approval validation
-export const approveRestaurantValidation = [
-  body('status')
-    .isIn(['approved', 'rejected'])
-    .withMessage('Status must be approved or rejected'),
-
-  body('reason')
-    .optional()
-    .trim()
-    .isLength({ max: 200 })
-    .withMessage('Reason cannot exceed 200 characters')
-];
-
-// Legacy validation (keeping backward compatibility)
-export const registerValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
-
-  body('firstName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('role')
-    .isIn(['admin', 'customer', 'restaurant', 'delivery'])
-    .withMessage('Role must be one of: admin, customer, restaurant, delivery'),
-
-  body('phone')
-    .optional()
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number')
-];
-
-export const updateUserValidation = [
-  body('firstName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('phone')
-    .optional()
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
-
-  body('address.street')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Street address must be between 5 and 200 characters'),
-
-  body('address.city')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('City must be between 2 and 100 characters'),
-
-  body('address.state')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('State must be between 2 and 100 characters'),
-
-  body('address.zipCode')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 10 })
-    .withMessage('Zip code must be between 5 and 10 characters'),
-
-  body('address.coordinates.lat')
-    .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
-
-  body('address.coordinates.lng')
-    .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180')
-];
-
-// Email validation
-export const emailValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail()
-];
-
-// Refresh token validation
-export const refreshTokenValidation = [
-  body('refreshToken')
-    .notEmpty()
-    .withMessage('Refresh token is required')
-    .isLength({ min: 10 })
-    .withMessage('Invalid refresh token format')
-];
+export interface UpdateProfileDTO {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
+export interface UpdateRestaurantProfileDTO extends UpdateProfileDTO {
+  restaurantDetails?: {
+    name?: string;
+    description?: string;
+    cuisineType?: string[];
+    averageDeliveryTime?: number;
+    minimumOrderAmount?: number;
+    deliveryFee?: number;
+    serviceRadius?: number;
+    openingHours?: {
+      [key: string]: {
+        open: string;
+        close: string;
+        isOpen: boolean;
+      };
+    };
+  };
+  businessInfo?: {
+    bankAccountDetails?: {
+      bankName: string;
+      accountNumber: string;
+      routingNumber: string;
+    };
+  };
+}
+
+export interface UpdateDeliveryProfileDTO extends UpdateProfileDTO {
+  vehicleInfo?: {
+    type?: 'bike' | 'car' | 'motorcycle' | 'scooter';
+    licensePlate?: string;
+    color?: string;
+    model?: string;
+  };
+  workingHours?: {
+    [key: string]: {
+      start: string;
+      end: string;
+      isWorking: boolean;
+    };
+  };
+  deliveryZones?: string[];
+}
+
+export interface AddToFavoritesDTO {
+  restaurantId: string;
+}
+
+export interface UpdateLocationDTO {
+  lat: number;
+  lng: number;
+}

@@ -1,82 +1,182 @@
 import { Request, Response, NextFunction } from 'express';
 import { AdminService } from '../services/admin.service';
-import { formatResponse, calculatePagination } from '../../shared/utils/helpers';
+import { asyncHandler } from '../../shared/middlewares/error.middleware';
+import { Helpers } from '../../shared/utils/helpers';
+import { AuthenticatedRequest } from '../../shared/middlewares/auth.middleware';
 
 export class AdminController {
-  static async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const role = req.query.role as string;
-      const search = req.query.search as string;
+  private adminService: AdminService;
 
-      const { users, total } = await AdminService.getAllUsers(page, limit, role, search);
-      const pagination = calculatePagination(page, limit, total);
-
-      res.status(200).json(formatResponse(
-        'Users retrieved successfully',
-        users,
-        pagination
-      ));
-    } catch (error) {
-      next(error);
-    }
+  constructor() {
+    this.adminService = new AdminService();
   }
 
-  static async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { id } = req.params;
-      const user = await AdminService.getUserById(id);
+  /**
+   * Get dashboard statistics
+   */
+  getDashboardStats = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const stats = await this.adminService.getDashboardStats(req.query);
 
-      res.status(200).json(formatResponse(
-        'User retrieved successfully',
-        user
-      ));
-    } catch (error) {
-      next(error);
-    }
-  }
+      res
+        .status(200)
+        .json(
+          Helpers.formatResponse(
+            true,
+            'Dashboard statistics retrieved successfully',
+            stats,
+          ),
+        );
+    },
+  );
 
-  static async updateUserRole(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { id } = req.params;
-      const { role } = req.body;
+  /**
+   * Get all users with filtering
+   */
+  getUsers = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const result = await this.adminService.getUsers(req.query);
 
-      const user = await AdminService.updateUserRole(id, role);
+      res.status(200).json(
+        Helpers.formatResponse(
+          true,
+          'Users retrieved successfully',
+          result.users,
+          {
+            totalUsers: result.totalUsers,
+            totalPages: result.totalPages,
+            currentPage: result.currentPage,
+          },
+        ),
+      );
+    },
+  );
 
-      res.status(200).json(formatResponse(
-        'User role updated successfully',
-        user
-      ));
-    } catch (error) {
-      next(error);
-    }
-  }
+  /**
+   * Get user by ID
+   */
+  getUserById = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { userId } = req.params;
+      const user = await this.adminService.getUserById(userId);
 
-  static async deactivateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { id } = req.params;
-      const user = await AdminService.deactivateUser(id);
+      res
+        .status(200)
+        .json(
+          Helpers.formatResponse(true, 'User retrieved successfully', user),
+        );
+    },
+  );
 
-      res.status(200).json(formatResponse(
-        'User deactivated successfully',
-        user
-      ));
-    } catch (error) {
-      next(error);
-    }
-  }
+  /**
+   * Approve or reject restaurant/delivery registration
+   */
+  approveUser = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { userId } = req.params;
+      await this.adminService.approveUser({
+        userId,
+        ...req.body,
+      });
 
-  static async getDashboardStats(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const stats = await AdminService.getDashboardStats();
+      res
+        .status(200)
+        .json(
+          Helpers.formatResponse(
+            true,
+            'User approval status updated successfully',
+          ),
+        );
+    },
+  );
 
-      res.status(200).json(formatResponse(
-        'Dashboard statistics retrieved successfully',
-        stats
-      ));
-    } catch (error) {
-      next(error);
-    }
-  }
+  /**
+   * Update user active status
+   */
+  updateUserStatus = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { userId } = req.params;
+      await this.adminService.updateUserStatus({
+        userId,
+        ...req.body,
+      });
+
+      res
+        .status(200)
+        .json(Helpers.formatResponse(true, 'User status updated successfully'));
+    },
+  );
+
+  /**
+   * Delete user (soft delete)
+   */
+  deleteUser = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { userId } = req.params;
+      await this.adminService.deleteUser(userId);
+
+      res
+        .status(200)
+        .json(Helpers.formatResponse(true, 'User deleted successfully'));
+    },
+  );
+
+  /**
+   * Get pending restaurant approvals
+   */
+  getPendingRestaurants = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const restaurants = await this.adminService.getPendingRestaurants();
+
+      res
+        .status(200)
+        .json(
+          Helpers.formatResponse(
+            true,
+            'Pending restaurants retrieved successfully',
+            restaurants,
+          ),
+        );
+    },
+  );
+
+  /**
+   * Get pending delivery user approvals
+   */
+  getPendingDeliveryUsers = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const deliveryUsers = await this.adminService.getPendingDeliveryUsers();
+
+      res
+        .status(200)
+        .json(
+          Helpers.formatResponse(
+            true,
+            'Pending delivery users retrieved successfully',
+            deliveryUsers,
+          ),
+        );
+    },
+  );
+
+  /**
+   * Get platform analytics
+   */
+  getPlatformAnalytics = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const analytics = await this.adminService.getPlatformAnalytics(
+        req.query as any,
+      );
+
+      res
+        .status(200)
+        .json(
+          Helpers.formatResponse(
+            true,
+            'Platform analytics retrieved successfully',
+            analytics,
+          ),
+        );
+    },
+  );
 }

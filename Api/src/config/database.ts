@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 export const connectDB = async (): Promise<void> => {
   try {
-    const mongoUrl = process.env.MONGO_URI || 'mongodb://localhost:27017/TalabatDB';
+    const mongoUrl =
+      process.env.MONGO_URI || 'mongodb://localhost:27017/TalabatDB';
 
     await mongoose.connect(mongoUrl, {
       maxPoolSize: 10,
@@ -26,7 +27,6 @@ export const connectDB = async (): Promise<void> => {
       console.log('MongoDB connection closed due to app termination');
       process.exit(0);
     });
-
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
     throw error;

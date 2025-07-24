@@ -34,18 +34,22 @@ class App {
 
   private initializeMiddlewares(): void {
     // Security middleware
-    this.app.use(helmet({
-      contentSecurityPolicy: false,
-      crossOriginEmbedderPolicy: false
-    }));
+    this.app.use(
+      helmet({
+        contentSecurityPolicy: false,
+        crossOriginEmbedderPolicy: false,
+      }),
+    );
 
     // CORS configuration
-    this.app.use(cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization']
-    }));
+    this.app.use(
+      cors({
+        origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+      }),
+    );
 
     // Rate limiting
     const limiter = rateLimit({
@@ -53,36 +57,42 @@ class App {
       max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
       message: {
         success: false,
-        message: 'Too many requests from this IP, please try again later.'
+        message: 'Too many requests from this IP, please try again later.',
       },
       standardHeaders: true,
-      legacyHeaders: false
+      legacyHeaders: false,
     });
     this.app.use('/api', limiter);
 
     // Body parsing middleware
-    this.app.use(express.json({ 
-      limit: '10mb',
-      verify: (req: any, res: any, buf: Buffer) => {
-        try {
-          JSON.parse(buf.toString());
-        } catch (e) {
-          res.status(400).json({
-            success: false,
-            message: 'Invalid JSON format'
-          });
-          return;
-        }
-      }
-    }));
-    this.app.use(express.urlencoded({ 
-      extended: true,
-      limit: '10mb' 
-    }));
+    this.app.use(
+      express.json({
+        limit: '10mb',
+        verify: (req: any, res: any, buf: Buffer) => {
+          try {
+            JSON.parse(buf.toString());
+          } catch (e) {
+            res.status(400).json({
+              success: false,
+              message: 'Invalid JSON format',
+            });
+            return;
+          }
+        },
+      }),
+    );
+    this.app.use(
+      express.urlencoded({
+        extended: true,
+        limit: '10mb',
+      }),
+    );
 
     // Logging middleware
     if (process.env.NODE_ENV !== 'test') {
-      this.app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+      this.app.use(
+        morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'),
+      );
     }
 
     // Request timeout middleware
@@ -90,7 +100,7 @@ class App {
       req.setTimeout(30000, () => {
         res.status(408).json({
           success: false,
-          message: 'Request timeout'
+          message: 'Request timeout',
         });
       });
       next();
@@ -105,13 +115,13 @@ class App {
         message: 'Talabat API is running',
         timestamp: new Date().toISOString(),
         version: process.env.npm_package_version || '1.0.0',
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
       });
     });
 
     // API routes with versioning
     const API_VERSION = '/api/v1';
-    
+
     this.app.use(`${API_VERSION}/auth`, authRoutes);
     this.app.use(`${API_VERSION}/users`, userRoutes);
     this.app.use(`${API_VERSION}/admin`, adminRoutes);
@@ -135,8 +145,8 @@ class App {
           `${API_VERSION}/users`,
           `${API_VERSION}/admin`,
           `${API_VERSION}/restaurants`,
-          `${API_VERSION}/delivery`
-        ]
+          `${API_VERSION}/delivery`,
+        ],
       });
     });
 
@@ -145,7 +155,7 @@ class App {
       res.status(404).json({
         success: false,
         message: 'Endpoint not found',
-        hint: 'Try accessing /api/v1/* endpoints or check /swagger for documentation'
+        hint: 'Try accessing /api/v1/* endpoints or check /swagger for documentation',
       });
     });
   }
@@ -155,11 +165,19 @@ class App {
     const swaggerOptions = {
       explorer: true,
       customCss: '.swagger-ui .topbar { display: none }',
-      customSiteTitle: 'Talabat API Documentation'
+      customSiteTitle: 'Talabat API Documentation',
     };
-    
-    this.app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
-    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
+
+    this.app.use(
+      '/swagger',
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerSpec, swaggerOptions),
+    );
+    this.app.use(
+      '/api-docs',
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerSpec, swaggerOptions),
+    );
   }
 
   private initializeErrorHandling(): void {
@@ -169,30 +187,22 @@ class App {
   private async connectToDatabase(): Promise<void> {
     try {
       await connectDB();
-      console.log('✅ Database connected successfully');
-      
+      console.log('Database connected successfully');
+
       // Initialize application (create admin user, etc.)
       await initializeApp();
     } catch (error) {
-      console.error('❌ Database connection failed:', error);
+      console.error('Database connection failed:', error);
       process.exit(1);
     }
   }
 
   public listen(port: number): void {
     this.app.listen(port, () => {
-      console.log(`🚀 Server running on port ${port}`);
-      console.log(`📚 API Documentation: http://localhost:${port}/swagger`);
-      console.log(`❤️  Health Check: http://localhost:${port}/health`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log('\n📝 Available endpoints:');
-        console.log('   • POST /api/v1/auth/register - User registration');
-        console.log('   • POST /api/v1/auth/login - User login');
-        console.log('   • GET  /api/v1/users/profile - Get user profile');
-        console.log('   • GET  /swagger - API documentation');
-      }
+      console.log(`Server running on port ${port}`);
+      console.log(`API Documentation: http://localhost:${port}/swagger`);
+      console.log(`Health Check: http://localhost:${port}/health`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   }
 }
@@ -204,7 +214,7 @@ const startServer = async (): Promise<void> => {
   try {
     const app = new App();
     const PORT = parseInt(process.env.PORT || '5000', 10);
-    
+
     // Graceful shutdown
     process.on('SIGTERM', () => {
       console.log('🔴 SIGTERM received, shutting down gracefully');

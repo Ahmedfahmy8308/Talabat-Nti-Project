@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { Helpers } from '../utils/helpers';
 
 export interface ApiError extends Error {
   statusCode?: number;
@@ -9,7 +10,7 @@ export class AppError extends Error implements ApiError {
   statusCode: number;
   isOperational: boolean;
 
-  constructor(message: string, statusCode: number) {
+  constructor(message: string, statusCode: number = 500) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
@@ -22,46 +23,68 @@ export const errorHandler = (
   err: ApiError,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
-  let error = { ...err };
-  error.message = err.message;
+  let { statusCode = 500, message } = err;
 
-  // Log error
-  console.error(err);
-
-  // Mongoose bad ObjectId
-  if (err.name === 'CastError') {
-    const message = 'Resource not found';
-    error = new AppError(message, 404);
-  }
-
-  // Mongoose duplicate key
-  if (err.name === 'MongoServerError' && (err as any).code === 11000) {
-    const message = 'Duplicate field value entered';
-    error = new AppError(message, 400);
-  }
-
-  // Mongoose validation error
+  // Handle specific error types
   if (err.name === 'ValidationError') {
-    const message = Object.values((err as any).errors).map((val: any) => val.message).join(', ');
-    error = new AppError(message, 400);
+    statusCode = 400;
+    message = 'Validation Error';
+  } else if (err.name === 'CastError') {
+    statusCode = 400;
+    message = 'Invalid ID format';
+  } else if (err.name === 'JsonWebTokenError') {
+    statusCode = 401;
+    message = 'Invalid token';
+  } else if (err.name === 'TokenExpiredError') {
+    statusCode = 401;
+    message = 'Token expired';
+  } else if (err.name === 'MongoError' && (err as any).code === 11000) {
+    statusCode = 400;
+    message = 'Duplicate field value';
   }
 
-  // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    const message = 'Invalid token';
-    error = new AppError(message, 401);
+  // Log error in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error('❌ Error Details:', {
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+      statusCode,
+      url: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
   }
 
-  if (err.name === 'TokenExpiredError') {
-    const message = 'Token expired';
-    error = new AppError(message, 401);
-  }
+  // Send error response
+  res.status(statusCode).json(
+    Helpers.formatResponse(
+      false,
+      message,
+      process.env.NODE_ENV === 'development'
+        ? {
+            stack: err.stack,
+            name: err.name,
+          }
+        : undefined,
+    ),
+  );
+};
 
-  res.status(error.statusCode || 500).json({
-    success: false,
-    message: error.message || 'Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-  });
+export const notFound = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  const error = new AppError(`Route ${req.originalUrl} not found`, 404);
+  next(error);
+};
+
+export const asyncHandler = (fn: Function) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
 };

@@ -1,80 +1,175 @@
-import Meal, { IMeal } from '../schemas/restaurant.schema';
+import { Restaurant } from '../../user/schemas';
+import Meal from '../../meal/schemas/meal.schema';
 import { AppError } from '../../shared/middlewares/error.middleware';
-
-export interface CreateMealData {
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image?: string;
-  ingredients: string[];
-  preparationTime: number;
-  calories?: number;
-  allergens?: string[];
-  tags?: string[];
-}
-
-export interface UpdateMealData {
-  name?: string;
-  description?: string;
-  price?: number;
-  category?: string;
-  image?: string;
-  ingredients?: string[];
-  isAvailable?: boolean;
-  preparationTime?: number;
-  calories?: number;
-  allergens?: string[];
-  tags?: string[];
-}
+import { Helpers } from '../../shared/utils/helpers';
+import {
+  CreateMealDTO,
+  UpdateMealDTO,
+  SearchMealsDTO,
+} from '../dto/restaurant.dto';
 
 export class RestaurantService {
-  static async createMeal(restaurantId: string, mealData: CreateMealData): Promise<IMeal> {
+  /**
+   * Create a new meal
+   */
+  async createMeal(
+    restaurantId: string,
+    mealData: CreateMealDTO,
+  ): Promise<any> {
+    // Verify restaurant exists and is operational
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      throw new AppError('Restaurant not found', 404);
+    }
+
+    if (restaurant.verificationStatus !== 'verified') {
+      throw new AppError('Restaurant must be verified to add meals', 403);
+    }
+
     const meal = new Meal({
       ...mealData,
-      restaurantId
+      restaurantId,
     });
 
     await meal.save();
+
+    // Add meal to restaurant's menu
+    if (!restaurant.menu) {
+      restaurant.menu = [];
+    }
+    restaurant.menu.push(meal._id);
+    await restaurant.save();
+
     return meal;
   }
 
-  static async getMealsByRestaurant(
+  /**
+   * Update meal
+   */
+  async updateMeal(
     restaurantId: string,
-    page: number = 1,
-    limit: number = 10,
-    category?: string,
-    search?: string
-  ): Promise<{ meals: IMeal[]; total: number }> {
-    const skip = (page - 1) * limit;
-    const query: any = { restaurantId };
+    mealId: string,
+    updateData: UpdateMealDTO,
+  ): Promise<any> {
+    const meal = await Meal.findOne({ _id: mealId, restaurantId });
+    if (!meal) {
+      throw new AppError('Meal not found', 404);
+    }
+
+    Object.assign(meal, updateData);
+    await meal.save();
+
+    return meal;
+  }
+
+  /**
+   * Delete meal
+   */
+  async deleteMeal(restaurantId: string, mealId: string): Promise<void> {
+    const meal = await Meal.findOneAndDelete({ _id: mealId, restaurantId });
+    if (!meal) {
+      throw new AppError('Meal not found', 404);
+    }
+
+    // Remove from restaurant's menu
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (restaurant && restaurant.menu) {
+      restaurant.menu = restaurant.menu.filter(
+        (id) => id.toString() !== mealId,
+      );
+      await restaurant.save();
+    }
+  }
+
+  /**
+   * Get restaurant's meals
+   */
+  async getRestaurantMeals(
+    restaurantId: string,
+    filters: any = {},
+  ): Promise<any[]> {
+    return await (Meal as any).findByRestaurant(restaurantId, filters);
+  }
+
+  /**
+   * Search meals
+   */
+  async searchMeals(searchData: SearchMealsDTO): Promise<any> {
+    const {
+      search,
+      category,
+      maxPrice,
+      minRating,
+      isVegetarian,
+      isVegan,
+      isGlutenFree,
+      restaurantId,
+      page = 1,
+      limit = 20,
+    } = searchData;
+
+    const query: any = { isAvailable: true };
+
+    if (restaurantId) {
+      query.restaurantId = restaurantId;
+    }
 
     if (category) {
       query.category = category;
     }
 
-    if (search) {
-      query.$text = { $search: search };
+    if (maxPrice) {
+      query.price = { $lte: maxPrice };
     }
 
-    const [meals, total] = await Promise.all([
-      Meal.find(query)
+    if (minRating) {
+      query['ratings.average'] = { $gte: minRating };
+    }
+
+    if (isVegetarian) {
+      query.isVegetarian = true;
+    }
+
+    if (isVegan) {
+      query.isVegan = true;
+    }
+
+    if (isGlutenFree) {
+      query.isGlutenFree = true;
+    }
+
+    const { skip, limit: pageLimit } = Helpers.paginate(page, limit);
+
+    let meals;
+    if (search) {
+      meals = await (Meal as any).searchMeals(search, query);
+    } else {
+      meals = await Meal.find(query)
+        .populate('restaurantId', 'firstName lastName restaurantDetails.name')
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limit),
-      Meal.countDocuments(query)
-    ]);
-
-    return { meals, total };
-  }
-
-  static async getMealById(mealId: string, restaurantId?: string): Promise<IMeal> {
-    const query: any = { _id: mealId };
-    if (restaurantId) {
-      query.restaurantId = restaurantId;
+        .limit(pageLimit);
     }
 
-    const meal = await Meal.findOne(query);
+    const totalMeals = await Meal.countDocuments(query);
+    const totalPages = Math.ceil(totalMeals / pageLimit);
+
+    return {
+      meals,
+      totalMeals,
+      totalPages,
+      currentPage: page,
+    };
+  }
+
+  /**
+   * Get meal by ID
+   */
+  async getMealById(mealId: string): Promise<any> {
+    const meal = await Meal.findById(mealId).populate(
+      'restaurantId',
+      'firstName lastName restaurantDetails.name ratings',
+    );
     if (!meal) {
       throw new AppError('Meal not found', 404);
     }
@@ -82,32 +177,38 @@ export class RestaurantService {
     return meal;
   }
 
-  static async updateMeal(
-    mealId: string,
+  /**
+   * Get meals by category
+   */
+  async getMealsByCategory(category: string): Promise<any[]> {
+    return await Meal.find({
+      category,
+      isAvailable: true,
+    })
+      .populate('restaurantId', 'firstName lastName restaurantDetails.name')
+      .sort({ 'ratings.average': -1 });
+  }
+
+  /**
+   * Get featured meals
+   */
+  async getFeaturedMeals(limit: number = 10): Promise<any[]> {
+    return await Meal.find({
+      isAvailable: true,
+      'ratings.average': { $gte: 4.0 },
+    })
+      .populate('restaurantId', 'firstName lastName restaurantDetails.name')
+      .sort({ 'ratings.average': -1, 'ratings.count': -1 })
+      .limit(limit);
+  }
+
+  /**
+   * Toggle meal availability
+   */
+  async toggleMealAvailability(
     restaurantId: string,
-    updateData: UpdateMealData
-  ): Promise<IMeal> {
-    const meal = await Meal.findOneAndUpdate(
-      { _id: mealId, restaurantId },
-      { $set: updateData },
-      { new: true, runValidators: true }
-    );
-
-    if (!meal) {
-      throw new AppError('Meal not found or you do not have permission to update it', 404);
-    }
-
-    return meal;
-  }
-
-  static async deleteMeal(mealId: string, restaurantId: string): Promise<void> {
-    const meal = await Meal.findOneAndDelete({ _id: mealId, restaurantId });
-    if (!meal) {
-      throw new AppError('Meal not found or you do not have permission to delete it', 404);
-    }
-  }
-
-  static async toggleMealAvailability(mealId: string, restaurantId: string): Promise<IMeal> {
+    mealId: string,
+  ): Promise<any> {
     const meal = await Meal.findOne({ _id: mealId, restaurantId });
     if (!meal) {
       throw new AppError('Meal not found', 404);
@@ -119,31 +220,94 @@ export class RestaurantService {
     return meal;
   }
 
-  static async getMealsByCategory(category: string): Promise<IMeal[]> {
-    return await Meal.find({ category, isAvailable: true })
-      .sort({ createdAt: -1 });
+  /**
+   * Set meal discount
+   */
+  async setMealDiscount(
+    restaurantId: string,
+    mealId: string,
+    discount: { percentage: number; validUntil: Date },
+  ): Promise<any> {
+    const meal = await Meal.findOne({ _id: mealId, restaurantId });
+    if (!meal) {
+      throw new AppError('Meal not found', 404);
+    }
+
+    meal.discount = discount;
+    await meal.save();
+
+    return meal;
   }
 
-  static async searchMeals(
-    searchQuery: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<{ meals: IMeal[]; total: number }> {
-    const skip = (page - 1) * limit;
+  /**
+   * Remove meal discount
+   */
+  async removeMealDiscount(restaurantId: string, mealId: string): Promise<any> {
+    const meal = await Meal.findOne({ _id: mealId, restaurantId });
+    if (!meal) {
+      throw new AppError('Meal not found', 404);
+    }
 
-    const query = {
-      $text: { $search: searchQuery },
-      isAvailable: true
-    };
+    meal.discount = undefined;
+    await meal.save();
 
-    const [meals, total] = await Promise.all([
-      Meal.find(query)
-        .sort({ score: { $meta: 'textScore' } })
-        .skip(skip)
-        .limit(limit),
-      Meal.countDocuments(query)
+    return meal;
+  }
+
+  /**
+   * Get restaurant analytics
+   */
+  async getRestaurantAnalytics(
+    restaurantId: string,
+    dateRange?: { from: Date; to: Date },
+  ): Promise<any> {
+    const Order = require('../../order/schemas/order.schema').default;
+
+    const matchStage: any = { restaurantId };
+    if (dateRange) {
+      matchStage.createdAt = { $gte: dateRange.from, $lte: dateRange.to };
+    }
+
+    const analytics = await Order.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: null,
+          totalOrders: { $sum: 1 },
+          totalRevenue: { $sum: '$totalAmount' },
+          averageOrderValue: { $avg: '$totalAmount' },
+          completedOrders: {
+            $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] },
+          },
+          cancelledOrders: {
+            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
-    return { meals, total };
+    // Top selling meals
+    const topMeals = await Order.aggregate([
+      { $match: matchStage },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.mealId',
+          name: { $first: '$items.name' },
+          totalOrdered: { $sum: '$items.quantity' },
+          totalRevenue: {
+            $sum: { $multiply: ['$items.price', '$items.quantity'] },
+          },
+        },
+      },
+      { $sort: { totalOrdered: -1 } },
+      { $limit: 5 },
+    ]);
+
+    return {
+      ...(analytics[0] || {}),
+      topMeals,
+      dateRange,
+    };
   }
 }

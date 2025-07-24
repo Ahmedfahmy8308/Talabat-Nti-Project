@@ -1,130 +1,101 @@
 import { Router } from 'express';
 import { AdminController } from './controllers/admin.controller';
-import { authenticate, isAdmin } from '../shared/middlewares/auth.middleware';
-import { validate } from '../shared/middlewares/validation.middleware';
-import { updateUserRoleValidation } from './dto/admin.dto';
+import { authenticate, authorize } from '../shared/middlewares/auth.middleware';
+import { validateRequest } from '../shared/middlewares/validation.middleware';
+import { body, param } from 'express-validator';
 
 const router = Router();
+const adminController = new AdminController();
 
 // All admin routes require authentication and admin role
-router.use(authenticate, isAdmin);
+router.use(authenticate);
+router.use(authorize('admin'));
 
 /**
  * @swagger
- * /api/admin/dashboard:
+ * tags:
+ *   name: Admin
+ *   description: Admin management endpoints
+ */
+
+/**
+ * @swagger
+ * /api/v1/admin/dashboard:
  *   get:
  *     summary: Get dashboard statistics
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for statistics
+ *       - in: query
+ *         name: to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for statistics
  *     responses:
  *       200:
  *         description: Dashboard statistics retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     totalUsers:
- *                       type: number
- *                     customers:
- *                       type: number
- *                     restaurants:
- *                       type: number
- *                     deliveryPersons:
- *                       type: number
- *                     totalOrders:
- *                       type: number
- *                     totalRevenue:
- *                       type: number
- *                     activeOrders:
- *                       type: number
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - Admin role required
+ *         description: Admin access required
  */
-router.get('/dashboard', AdminController.getDashboardStats);
+router.get('/dashboard', adminController.getDashboardStats);
 
 /**
  * @swagger
- * /api/admin/users:
+ * /api/v1/admin/users:
  *   get:
- *     summary: Get all users with pagination and filtering
+ *     summary: Get all users with filtering
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [customer, restaurant, delivery]
+ *         description: Filter by user role
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive, pending, verified, rejected]
+ *         description: Filter by user status
+ *       - in: query
  *         name: page
  *         schema:
  *           type: integer
- *           minimum: 1
  *           default: 1
  *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *           minimum: 1
- *           maximum: 100
- *           default: 10
- *         description: Number of users per page
- *       - in: query
- *         name: role
- *         schema:
- *           type: string
- *           enum: [admin, customer, restaurant, delivery]
- *         description: Filter by user role
+ *           default: 20
+ *         description: Items per page
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
- *         description: Search by name or email
+ *         description: Search term
  *     responses:
  *       200:
  *         description: Users retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/User'
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     page:
- *                       type: number
- *                     limit:
- *                       type: number
- *                     total:
- *                       type: number
- *                     pages:
- *                       type: number
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin role required
  */
-router.get('/users', AdminController.getAllUsers);
+router.get('/users', adminController.getUsers);
 
 /**
  * @swagger
- * /api/admin/users/{id}:
+ * /api/v1/admin/users/{userId}:
  *   get:
  *     summary: Get user by ID
  *     tags: [Admin]
@@ -132,7 +103,7 @@ router.get('/users', AdminController.getAllUsers);
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
  *         required: true
  *         schema:
  *           type: string
@@ -140,37 +111,27 @@ router.get('/users', AdminController.getAllUsers);
  *     responses:
  *       200:
  *         description: User retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin role required
  */
-router.get('/users/:id', AdminController.getUserById);
+router.get(
+  '/users/:userId',
+  param('userId').isMongoId().withMessage('Invalid user ID'),
+  validateRequest,
+  adminController.getUserById,
+);
 
 /**
  * @swagger
- * /api/admin/users/{id}/role:
- *   patch:
- *     summary: Update user role
+ * /api/v1/admin/users/{userId}/approve:
+ *   post:
+ *     summary: Approve or reject restaurant/delivery registration
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
  *         required: true
  *         schema:
  *           type: string
@@ -182,73 +143,148 @@ router.get('/users/:id', AdminController.getUserById);
  *           schema:
  *             type: object
  *             required:
- *               - role
+ *               - status
  *             properties:
- *               role:
+ *               status:
  *                 type: string
- *                 enum: [admin, customer, restaurant, delivery]
- *                 example: restaurant
+ *                 enum: [verified, rejected]
+ *               reason:
+ *                 type: string
  *     responses:
  *       200:
- *         description: User role updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/User'
- *       400:
- *         description: Invalid role
- *       404:
- *         description: User not found
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin role required
+ *         description: User approval status updated successfully
  */
-router.patch('/users/:id/role', validate(updateUserRoleValidation), AdminController.updateUserRole);
+router.post(
+  '/users/:userId/approve',
+  param('userId').isMongoId().withMessage('Invalid user ID'),
+  body('status')
+    .isIn(['verified', 'rejected'])
+    .withMessage('Status must be verified or rejected'),
+  body('reason').optional().isString().withMessage('Reason must be a string'),
+  validateRequest,
+  adminController.approveUser,
+);
 
 /**
  * @swagger
- * /api/admin/users/{id}/deactivate:
+ * /api/v1/admin/users/{userId}/status:
  *   patch:
- *     summary: Deactivate user account
+ *     summary: Update user active status
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - isActive
+ *             properties:
+ *               isActive:
+ *                 type: boolean
+ *               reason:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User status updated successfully
+ */
+router.patch(
+  '/users/:userId/status',
+  param('userId').isMongoId().withMessage('Invalid user ID'),
+  body('isActive').isBoolean().withMessage('isActive must be a boolean'),
+  body('reason').optional().isString().withMessage('Reason must be a string'),
+  validateRequest,
+  adminController.updateUserStatus,
+);
+
+/**
+ * @swagger
+ * /api/v1/admin/users/{userId}:
+ *   delete:
+ *     summary: Delete user (soft delete)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
  *         required: true
  *         schema:
  *           type: string
  *         description: User ID
  *     responses:
  *       200:
- *         description: User deactivated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/User'
- *       404:
- *         description: User not found
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin role required
+ *         description: User deleted successfully
  */
-router.patch('/users/:id/deactivate', AdminController.deactivateUser);
+router.delete(
+  '/users/:userId',
+  param('userId').isMongoId().withMessage('Invalid user ID'),
+  validateRequest,
+  adminController.deleteUser,
+);
+
+/**
+ * @swagger
+ * /api/v1/admin/pending/restaurants:
+ *   get:
+ *     summary: Get pending restaurant approvals
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Pending restaurants retrieved successfully
+ */
+router.get('/pending/restaurants', adminController.getPendingRestaurants);
+
+/**
+ * @swagger
+ * /api/v1/admin/pending/delivery:
+ *   get:
+ *     summary: Get pending delivery user approvals
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Pending delivery users retrieved successfully
+ */
+router.get('/pending/delivery', adminController.getPendingDeliveryUsers);
+
+/**
+ * @swagger
+ * /api/v1/admin/analytics:
+ *   get:
+ *     summary: Get platform analytics
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for analytics
+ *       - in: query
+ *         name: to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for analytics
+ *     responses:
+ *       200:
+ *         description: Platform analytics retrieved successfully
+ */
+router.get('/analytics', adminController.getPlatformAnalytics);
 
 export default router;

@@ -1,51 +1,30 @@
 import { Router } from 'express';
 import { AuthController } from './controllers/auth.controller';
 import { authenticate } from '../shared/middlewares/auth.middleware';
-import { 
-  validateAuthRegistration, 
-  validateAuthLogin, 
-  validateOTP, 
-  validateEmail, 
-  validatePasswordReset, 
-  validateChangePassword,
-  sanitizeInput 
-} from '../shared/middlewares/validation.middleware';
+import { validateRequest } from '../shared/middlewares/validation.middleware';
+import {
+  registerValidation,
+  loginValidation,
+  verifyOTPValidation,
+  resendOTPValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
+  changePasswordValidation,
+} from './middlewares/auth.validation';
 
 const router = Router();
+const authController = new AuthController();
 
 /**
  * @swagger
- * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- *   schemas:
- *     User:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         email:
- *           type: string
- *         firstName:
- *           type: string
- *         lastName:
- *           type: string
- *         role:
- *           type: string
- *           enum: [admin, customer, restaurant, delivery]
- *         isEmailVerified:
- *           type: boolean
- *         createdAt:
- *           type: string
- *           format: date-time
+ * tags:
+ *   name: Authentication
+ *   description: Authentication management
  */
 
 /**
  * @swagger
- * /api/auth/register:
+ * /api/v1/auth/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Authentication]
@@ -58,61 +37,39 @@ const router = Router();
  *             required:
  *               - email
  *               - password
+ *               - firstName
+ *               - lastName
  *               - role
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
- *                 example: john.doe@example.com
  *               password:
  *                 type: string
  *                 minLength: 6
- *                 example: Password123
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
  *               role:
  *                 type: string
  *                 enum: [customer, restaurant, delivery]
- *                 example: customer
- *               firstName:
- *                 type: string
- *                 example: John
- *                 description: Required for customer role
- *               lastName:
- *                 type: string
- *                 example: Doe
- *                 description: Required for customer role
- *               name:
- *                 type: string
- *                 example: Pizza Palace
- *                 description: Required for restaurant and delivery roles
- *               description:
- *                 type: string
- *                 example: Best pizza in town
- *                 description: Required for restaurant role
- *               phone:
- *                 type: string
- *                 example: +1234567890
  *     responses:
  *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/User'
+ *         description: User registered successfully, OTP sent
  *       400:
- *         description: Validation error or user already exists
+ *         description: Validation error
  */
-router.post('/register', sanitizeInput, validateAuthRegistration, AuthController.register);
+router.post(
+  '/register',
+  registerValidation,
+  validateRequest,
+  authController.register,
+);
 
 /**
  * @swagger
- * /api/auth/login:
+ * /api/v1/auth/login:
  *   post:
  *     summary: Login user
  *     tags: [Authentication]
@@ -129,43 +86,21 @@ router.post('/register', sanitizeInput, validateAuthRegistration, AuthController
  *               email:
  *                 type: string
  *                 format: email
- *                 example: john.doe@example.com
  *               password:
  *                 type: string
- *                 example: Password123
  *     responses:
  *       200:
- *         description: User logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
- *                     accessToken:
- *                       type: string
- *                     refreshToken:
- *                       type: string
- *                     expiresIn:
- *                       type: string
+ *         description: Login successful
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', sanitizeInput, validateAuthLogin, AuthController.login);
+router.post('/login', loginValidation, validateRequest, authController.login);
 
 /**
  * @swagger
- * /api/auth/verify-email:
+ * /api/v1/auth/verify-otp:
  *   post:
- *     summary: Verify email with OTP
+ *     summary: Verify OTP for registration or password reset
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -176,29 +111,35 @@ router.post('/login', sanitizeInput, validateAuthLogin, AuthController.login);
  *             required:
  *               - email
  *               - otp
+ *               - type
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
- *                 example: john.doe@example.com
  *               otp:
  *                 type: string
- *                 minLength: 6
- *                 maxLength: 6
- *                 example: "123456"
+ *                 length: 6
+ *               type:
+ *                 type: string
+ *                 enum: [registration, password-reset]
  *     responses:
  *       200:
- *         description: Email verified successfully
+ *         description: OTP verified successfully
  *       400:
  *         description: Invalid or expired OTP
  */
-router.post('/verify-email', sanitizeInput, validateOTP, AuthController.verifyEmail);
+router.post(
+  '/verify-otp',
+  verifyOTPValidation,
+  validateRequest,
+  authController.verifyOTP,
+);
 
 /**
  * @swagger
- * /api/auth/resend-otp:
+ * /api/v1/auth/resend-otp:
  *   post:
- *     summary: Resend OTP for email verification
+ *     summary: Resend OTP
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -208,22 +149,30 @@ router.post('/verify-email', sanitizeInput, validateOTP, AuthController.verifyEm
  *             type: object
  *             required:
  *               - email
+ *               - type
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
- *                 example: john.doe@example.com
+ *               type:
+ *                 type: string
+ *                 enum: [registration, password-reset]
  *     responses:
  *       200:
  *         description: OTP sent successfully
  *       404:
  *         description: User not found
  */
-router.post('/resend-otp', sanitizeInput, validateEmail, AuthController.resendOTP);
+router.post(
+  '/resend-otp',
+  resendOTPValidation,
+  validateRequest,
+  authController.resendOTP,
+);
 
 /**
  * @swagger
- * /api/auth/forgot-password:
+ * /api/v1/auth/forgot-password:
  *   post:
  *     summary: Request password reset
  *     tags: [Authentication]
@@ -239,18 +188,24 @@ router.post('/resend-otp', sanitizeInput, validateEmail, AuthController.resendOT
  *               email:
  *                 type: string
  *                 format: email
- *                 example: john.doe@example.com
  *     responses:
  *       200:
- *         description: Password reset instructions sent
+ *         description: Password reset OTP sent
+ *       404:
+ *         description: User not found
  */
-router.post('/forgot-password', sanitizeInput, validateEmail, AuthController.forgotPassword);
+router.post(
+  '/forgot-password',
+  forgotPasswordValidation,
+  validateRequest,
+  authController.forgotPassword,
+);
 
 /**
  * @swagger
- * /api/auth/reset-password:
+ * /api/v1/auth/reset-password:
  *   post:
- *     summary: Reset password with OTP
+ *     summary: Reset password using OTP
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -266,73 +221,30 @@ router.post('/forgot-password', sanitizeInput, validateEmail, AuthController.for
  *               email:
  *                 type: string
  *                 format: email
- *                 example: john.doe@example.com
  *               otp:
  *                 type: string
- *                 minLength: 6
- *                 maxLength: 6
- *                 example: "123456"
+ *                 length: 6
  *               newPassword:
  *                 type: string
  *                 minLength: 6
- *                 example: NewPassword123
  *     responses:
  *       200:
  *         description: Password reset successfully
  *       400:
  *         description: Invalid or expired OTP
  */
-router.post('/reset-password', sanitizeInput, validatePasswordReset, AuthController.resetPassword);
+router.post(
+  '/reset-password',
+  resetPasswordValidation,
+  validateRequest,
+  authController.resetPassword,
+);
 
 /**
  * @swagger
- * /api/auth/refresh-token:
+ * /api/v1/auth/change-password:
  *   post:
- *     summary: Refresh access token
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
- *                 type: string
- *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *     responses:
- *       200:
- *         description: Token refreshed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
- *                     refreshToken:
- *                       type: string
- *                     expiresIn:
- *                       type: string
- *       401:
- *         description: Invalid refresh token
- */
-router.post('/refresh-token', sanitizeInput, AuthController.refreshToken);
-
-/**
- * @swagger
- * /api/auth/change-password:
- *   post:
- *     summary: Change password (authenticated users)
+ *     summary: Change password (requires authentication)
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
@@ -348,42 +260,81 @@ router.post('/refresh-token', sanitizeInput, AuthController.refreshToken);
  *             properties:
  *               currentPassword:
  *                 type: string
- *                 example: CurrentPassword123
  *               newPassword:
  *                 type: string
  *                 minLength: 6
- *                 example: NewPassword123
  *     responses:
  *       200:
  *         description: Password changed successfully
  *       400:
  *         description: Current password is incorrect
  *       401:
- *         description: User not authenticated
+ *         description: Unauthorized
  */
-router.post('/change-password', sanitizeInput, validateChangePassword, authenticate, AuthController.changePassword);
+router.post(
+  '/change-password',
+  authenticate,
+  changePasswordValidation,
+  validateRequest,
+  authController.changePassword,
+);
 
 /**
  * @swagger
- * /api/auth/logout:
+ * /api/v1/auth/logout:
  *   post:
  *     summary: Logout user
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ */
+router.post('/logout', authController.logout);
+
+/**
+ * @swagger
+ * /api/v1/auth/profile:
+ *   get:
+ *     summary: Get current user profile
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: User logged out successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
+ *         description: Profile retrieved successfully
+ *       401:
+ *         description: Unauthorized
  */
-router.post('/logout', AuthController.logout);
+router.get('/profile', authenticate, authController.getProfile);
+
+/**
+ * @swagger
+ * /api/v1/auth/check:
+ *   get:
+ *     summary: Check authentication status
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User is authenticated
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/check', authenticate, authController.checkAuth);
+
+/**
+ * @swagger
+ * /api/v1/auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *       401:
+ *         description: Invalid refresh token
+ */
+router.post('/refresh', authController.refreshToken);
 
 export default router;
