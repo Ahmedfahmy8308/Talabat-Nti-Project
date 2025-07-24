@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './docs/swagger';
 import { connectDB } from './config/database';
-import { errorHandler } from './middlewares/error.middleware';
+import { errorHandler } from './modules/shared/middlewares/error.middleware';
 
 // Import routes
 import authRoutes from './modules/auth/routes';

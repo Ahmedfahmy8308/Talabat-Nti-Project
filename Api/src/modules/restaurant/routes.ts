@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { RestaurantController } from './controller';
-import { authenticate, isRestaurant, isRestaurantOrAdmin } from '../../middlewares/auth.middleware';
-import { validate } from '../../middlewares/validation.middleware';
-import { createMealValidation, updateMealValidation } from './validation';
+import { RestaurantController } from './controllers/restaurant.controller';
+import { authenticate, isRestaurant, isRestaurantOrAdmin } from '../shared/middlewares/auth.middleware';
+import { validate } from '../shared/middlewares/validation.middleware';
+import { createMealValidation, updateMealValidation } from './dto/restaurant.dto';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
-import Order, { IOrder } from './model';
-import { AppError } from '../../middlewares/error.middleware';
+import Order, { IOrder } from '../schemas/delivery.schema';
+import { AppError } from '../../shared/middlewares/error.middleware';
 
 export class DeliveryService {
   static async getAvailableOrders(

@@ -1,5 +1,5 @@
-import { UserService } from '../user/service';
-import { AppError } from '../../middlewares/error.middleware';
+import { UserService } from '../../user/services/user.service';
+import { AppError } from '../../shared/middlewares/error.middleware';
 
 export class AdminService {
   static async getAllUsers(

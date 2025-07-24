@@ -1,6 +1,6 @@
-import User, { IUser } from './model';
-import { hashPassword } from '../../utils/helpers';
-import { AppError } from '../../middlewares/error.middleware';
+import User, { IUser } from '../schemas/user.schema';
+import { hashPassword } from '../../shared/utils/helpers';
+import { AppError } from '../../shared/middlewares/error.middleware';
 
 export interface CreateUserData {
   email: string;

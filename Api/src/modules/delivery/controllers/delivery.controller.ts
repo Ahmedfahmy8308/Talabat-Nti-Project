@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { DeliveryService } from './service';
-import { AuthRequest } from '../../middlewares/auth.middleware';
-import { formatResponse, calculatePagination } from '../../utils/helpers';
+import { DeliveryService } from '../services/delivery.service';
+import { AuthRequest } from '../../shared/middlewares/auth.middleware';
+import { formatResponse, calculatePagination } from '../../shared/utils/helpers';
 
 export class DeliveryController {
   static async getAvailableOrders(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

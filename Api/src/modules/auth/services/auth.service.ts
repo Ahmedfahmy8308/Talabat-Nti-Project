@@ -1,6 +1,6 @@
-import { UserService, CreateUserData } from '../user/service';
-import { comparePassword, generateToken } from '../../utils/helpers';
-import { AppError } from '../../middlewares/error.middleware';
+import { UserService, CreateUserData } from '../../user/services/user.service';
+import { comparePassword, generateToken } from '../../shared/utils/helpers';
+import { AppError } from '../../shared/middlewares/error.middleware';
 
 export interface LoginData {
   email: string;

@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 export const hashPassword = async (password: string): Promise<string> => {
   const saltRounds = 12;
@@ -16,12 +16,10 @@ export const generateToken = (userId: string): string => {
     throw new Error('JWT_SECRET is not configured');
   }
 
-  const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
-
   return jwt.sign(
     { userId },
     jwtSecret,
-    { expiresIn }
+    { expiresIn: '7d' }
   );
 };
 

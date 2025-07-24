@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { UserController } from './controller';
-import { authenticate } from '../../middlewares/auth.middleware';
-import { validate } from '../../middlewares/validation.middleware';
-import { updateUserValidation } from './validation';
+import { UserController } from './controllers/user.controller';
+import { authenticate } from '../shared/middlewares/auth.middleware';
+import { validate } from '../shared/middlewares/validation.middleware';
+import { updateUserValidation } from './dto/user.dto';
 
 const router = Router();
 

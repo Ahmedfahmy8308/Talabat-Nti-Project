@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { DeliveryController } from './controller';
-import { authenticate, isDelivery, isDeliveryOrAdmin } from '../../middlewares/auth.middleware';
-import { validate } from '../../middlewares/validation.middleware';
-import { updateDeliveryStatusValidation } from './validation';
+import { DeliveryController } from './controllers/delivery.controller';
+import { authenticate, isDelivery, isDeliveryOrAdmin } from '../shared/middlewares/auth.middleware';
+import { validate } from '../shared/middlewares/validation.middleware';
+import { updateDeliveryStatusValidation } from './dto/delivery.dto';
 
 const router = Router();
 

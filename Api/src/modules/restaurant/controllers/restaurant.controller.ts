@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { RestaurantService } from './service';
-import { AuthRequest } from '../../middlewares/auth.middleware';
-import { formatResponse, calculatePagination } from '../../utils/helpers';
+import { RestaurantService } from '../services/restaurant.service';
+import { AuthRequest } from '../../shared/middlewares/auth.middleware';
+import { formatResponse, calculatePagination } from '../../shared/utils/helpers';
 
 export class RestaurantController {
   static async createMeal(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { UserService } from './service';
-import { AuthRequest } from '../../middlewares/auth.middleware';
-import { formatResponse } from '../../utils/helpers';
+import { UserService } from '../services/user.service';
+import { AuthRequest } from '../../shared/middlewares/auth.middleware';
+import { formatResponse } from '../../shared/utils/helpers';
 
 export class UserController {
   static async getProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

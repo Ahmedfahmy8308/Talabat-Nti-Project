@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AdminService } from './service';
-import { formatResponse, calculatePagination } from '../../utils/helpers';
+import { AdminService } from '../services/admin.service';
+import { formatResponse, calculatePagination } from '../../shared/utils/helpers';
 
 export class AdminController {
   static async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {

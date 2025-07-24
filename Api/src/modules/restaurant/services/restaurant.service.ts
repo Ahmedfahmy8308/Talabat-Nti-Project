@@ -1,5 +1,5 @@
-import Meal, { IMeal } from './model';
-import { AppError } from '../../middlewares/error.middleware';
+import Meal, { IMeal } from '../schemas/restaurant.schema';
+import { AppError } from '../../shared/middlewares/error.middleware';
 
 export interface CreateMealData {
   name: string;

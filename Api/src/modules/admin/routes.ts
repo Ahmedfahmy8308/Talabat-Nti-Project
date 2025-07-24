@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { AdminController } from './controller';
-import { authenticate, isAdmin } from '../../middlewares/auth.middleware';
-import { validate } from '../../middlewares/validation.middleware';
-import { updateUserRoleValidation } from './validation';
+import { AdminController } from './controllers/admin.controller';
+import { authenticate, isAdmin } from '../shared/middlewares/auth.middleware';
+import { validate } from '../shared/middlewares/validation.middleware';
+import { updateUserRoleValidation } from './dto/admin.dto';
 
 const router = Router();
 
