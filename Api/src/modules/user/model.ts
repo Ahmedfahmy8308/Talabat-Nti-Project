@@ -1,0 +1,120 @@
+import mongoose, { Document, Schema } from 'mongoose';
+
+export interface IUser extends Document {
+  _id: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  role: 'admin' | 'customer' | 'restaurant' | 'delivery';
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
+  };
+  avatar?: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  lastLogin?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      minlength: [6, 'Password must be at least 6 characters long'],
+      select: false // Don't include password in queries by default
+    },
+    firstName: {
+      type: String,
+      required: [true, 'First name is required'],
+      trim: true,
+      maxlength: [50, 'First name cannot be more than 50 characters']
+    },
+    lastName: {
+      type: String,
+      required: [true, 'Last name is required'],
+      trim: true,
+      maxlength: [50, 'Last name cannot be more than 50 characters']
+    },
+    phone: {
+      type: String,
+      trim: true,
+      match: [/^\+?[\d\s-()]+$/, 'Please enter a valid phone number']
+    },
+    role: {
+      type: String,
+      required: [true, 'Role is required'],
+      enum: {
+        values: ['admin', 'customer', 'restaurant', 'delivery'],
+        message: 'Role must be one of: admin, customer, restaurant, delivery'
+      },
+      default: 'customer'
+    },
+    address: {
+      street: { type: String, trim: true },
+      city: { type: String, trim: true },
+      state: { type: String, trim: true },
+      zipCode: { type: String, trim: true },
+      coordinates: {
+        lat: { type: Number },
+        lng: { type: Number }
+      }
+    },
+    avatar: {
+      type: String,
+      trim: true
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    lastLogin: {
+      type: Date
+    }
+  },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: function (doc, ret) {
+        delete ret.__v;
+        delete ret.password;
+        return ret;
+      }
+    }
+  }
+);
+
+// Indexes for better performance
+userSchema.index({ email: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ isActive: 1 });
+userSchema.index({ createdAt: -1 });
+
+// Virtual for full name
+userSchema.virtual('fullName').get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
+
+export default mongoose.model<IUser>('User', userSchema);
