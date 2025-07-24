@@ -11,7 +11,7 @@ router.use(authenticate, isAdmin);
 
 /**
  * @swagger
- * /api/v1/admin/dashboard:
+ * /api/admin/dashboard:
  *   get:
  *     summary: Get dashboard statistics
  *     tags: [Admin]
@@ -55,7 +55,7 @@ router.get('/dashboard', AdminController.getDashboardStats);
 
 /**
  * @swagger
- * /api/v1/admin/users:
+ * /api/admin/users:
  *   get:
  *     summary: Get all users with pagination and filtering
  *     tags: [Admin]
@@ -124,7 +124,7 @@ router.get('/users', AdminController.getAllUsers);
 
 /**
  * @swagger
- * /api/v1/admin/users/{id}:
+ * /api/admin/users/{id}:
  *   get:
  *     summary: Get user by ID
  *     tags: [Admin]
@@ -162,7 +162,7 @@ router.get('/users/:id', AdminController.getUserById);
 
 /**
  * @swagger
- * /api/v1/admin/users/{id}/role:
+ * /api/admin/users/{id}/role:
  *   patch:
  *     summary: Update user role
  *     tags: [Admin]
@@ -215,7 +215,7 @@ router.patch('/users/:id/role', validate(updateUserRoleValidation), AdminControl
 
 /**
  * @swagger
- * /api/v1/admin/users/{id}/deactivate:
+ * /api/admin/users/{id}/deactivate:
  *   patch:
  *     summary: Deactivate user account
  *     tags: [Admin]

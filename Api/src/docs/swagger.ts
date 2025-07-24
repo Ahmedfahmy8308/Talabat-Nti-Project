@@ -7,22 +7,14 @@ const options: swaggerJsdoc.Options = {
       title: 'Talbat API',
       version: '1.0.0',
       description: 'A comprehensive food delivery platform API built with Express.js, TypeScript, and MongoDB',
-      contact: {
-        name: 'API Support',
-        email: 'support@talbat.com'
-      },
-      license: {
-        name: 'MIT',
-        url: 'https://opensource.org/licenses/MIT'
-      }
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT || 3000}/api/${process.env.API_VERSION || 'v1'}`,
+        url: `http://localhost:${process.env.PORT || 5000}`,
         description: 'Development server'
       },
       {
-        url: 'https://api.talbat.com/api/v1',
+        url: 'https://api.talbat.com',
         description: 'Production server'
       }
     ],

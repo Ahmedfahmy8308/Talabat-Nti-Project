@@ -106,13 +106,11 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Indexes for better performance
-userSchema.index({ email: 1 });
+
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
 userSchema.index({ createdAt: -1 });
 
-// Virtual for full name
 userSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });

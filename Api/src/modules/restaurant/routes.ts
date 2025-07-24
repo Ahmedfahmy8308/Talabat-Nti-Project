@@ -71,7 +71,7 @@ const router = Router();
 // Public routes (accessible by all authenticated users)
 /**
  * @swagger
- * /api/v1/restaurant/search:
+ * /api/restaurant/search:
  *   get:
  *     summary: Search meals across all restaurants
  *     tags: [Restaurant - Public]
@@ -126,7 +126,7 @@ router.get('/search', authenticate, RestaurantController.searchMeals);
 
 /**
  * @swagger
- * /api/v1/restaurant/category/{category}:
+ * /api/restaurant/category/{category}:
  *   get:
  *     summary: Get meals by category
  *     tags: [Restaurant - Public]
@@ -164,7 +164,7 @@ router.get('/category/:category', authenticate, RestaurantController.getMealsByC
 // Restaurant-only routes
 /**
  * @swagger
- * /api/v1/restaurant/meals:
+ * /api/restaurant/meals:
  *   post:
  *     summary: Create a new meal
  *     tags: [Restaurant - Management]
@@ -247,7 +247,7 @@ router.post('/meals', authenticate, isRestaurant, validate(createMealValidation)
 
 /**
  * @swagger
- * /api/v1/restaurant/meals:
+ * /api/restaurant/meals:
  *   get:
  *     summary: Get all meals for the authenticated restaurant
  *     tags: [Restaurant - Management]
@@ -307,7 +307,7 @@ router.get('/meals', authenticate, isRestaurant, RestaurantController.getMeals);
 
 /**
  * @swagger
- * /api/v1/restaurant/meals/{id}:
+ * /api/restaurant/meals/{id}:
  *   get:
  *     summary: Get a specific meal by ID
  *     tags: [Restaurant - Management]
@@ -345,7 +345,7 @@ router.get('/meals/:id', authenticate, isRestaurant, RestaurantController.getMea
 
 /**
  * @swagger
- * /api/v1/restaurant/meals/{id}:
+ * /api/restaurant/meals/{id}:
  *   patch:
  *     summary: Update a meal
  *     tags: [Restaurant - Management]
@@ -422,7 +422,7 @@ router.patch('/meals/:id', authenticate, isRestaurant, validate(updateMealValida
 
 /**
  * @swagger
- * /api/v1/restaurant/meals/{id}:
+ * /api/restaurant/meals/{id}:
  *   delete:
  *     summary: Delete a meal
  *     tags: [Restaurant - Management]
@@ -458,7 +458,7 @@ router.delete('/meals/:id', authenticate, isRestaurant, RestaurantController.del
 
 /**
  * @swagger
- * /api/v1/restaurant/meals/{id}/toggle-availability:
+ * /api/restaurant/meals/{id}/toggle-availability:
  *   patch:
  *     summary: Toggle meal availability
  *     tags: [Restaurant - Management]

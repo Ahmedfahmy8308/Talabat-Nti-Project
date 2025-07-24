@@ -25,8 +25,8 @@ class App {
   constructor() {
     this.app = express();
     this.initializeMiddlewares();
-    this.initializeRoutes();
     this.initializeSwagger();
+    this.initializeRoutes();
     this.initializeErrorHandling();
     this.connectToDatabase();
   }
@@ -43,8 +43,8 @@ class App {
 
     // Rate limiting
     const limiter = rateLimit({
-      windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
-      max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // limit each IP to 100 requests per windowMs
+      windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'),
+      max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
       message: 'Too many requests from this IP, please try again later.'
     });
     this.app.use('/api', limiter);
@@ -60,24 +60,21 @@ class App {
   }
 
   private initializeRoutes(): void {
-    const apiVersion = process.env.API_VERSION || 'v1';
-
     // Health check endpoint
     this.app.get('/health', (req, res) => {
       res.status(200).json({
         status: 'OK',
         message: 'Talbat API is running',
-        timestamp: new Date().toISOString(),
-        version: apiVersion
+        timestamp: new Date().toISOString()
       });
     });
 
-    // API routes
-    this.app.use(`/api/${apiVersion}/auth`, authRoutes);
-    this.app.use(`/api/${apiVersion}/user`, userRoutes);
-    this.app.use(`/api/${apiVersion}/admin`, adminRoutes);
-    this.app.use(`/api/${apiVersion}/restaurant`, restaurantRoutes);
-    this.app.use(`/api/${apiVersion}/delivery`, deliveryRoutes);
+    // API routes (without version prefix)
+    this.app.use('/api/auth', authRoutes);
+    this.app.use('/api/user', userRoutes);
+    this.app.use('/api/admin', adminRoutes);
+    this.app.use('/api/restaurant', restaurantRoutes);
+    this.app.use('/api/delivery', deliveryRoutes);
 
     // 404 handler
     this.app.use('*', (req, res) => {
@@ -89,7 +86,7 @@ class App {
   }
 
   private initializeSwagger(): void {
-    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    this.app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 
   private initializeErrorHandling(): void {
@@ -99,20 +96,38 @@ class App {
   private async connectToDatabase(): Promise<void> {
     try {
       await connectDB();
-      console.log('✅ Database connected successfully');
+      console.log('Database connected successfully');
     } catch (error) {
-      console.error('❌ Database connection failed:', error);
+      console.error('Database connection failed:', error);
       process.exit(1);
     }
   }
 
   public listen(port: number): void {
     this.app.listen(port, () => {
-      console.log(`🚀 Server running on port ${port}`);
-      console.log(`📚 API Documentation: http://localhost:${port}/api-docs`);
-      console.log(`🏥 Health Check: http://localhost:${port}/health`);
+      console.log(`Server running on port ${port}`);
+      console.log(`API Documentation: http://localhost:${port}/swagger`);
+      console.log(`Health Check: http://localhost:${port}/health`);
     });
   }
 }
 
 export default App;
+
+// Initialize and start the server directly
+const startServer = async (): Promise<void> => {
+  try {
+    const app = new App();
+
+    const PORT = parseInt(process.env.PORT || '5000', 10);
+    app.listen(PORT);
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Start the server if this file is run directly
+if (require.main === module) {
+  startServer();
+}

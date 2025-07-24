@@ -70,7 +70,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/user/me:
+ * /api/user/me:
  *   get:
  *     summary: Get current user profile
  *     tags: [User]
@@ -97,7 +97,7 @@ router.get('/me', authenticate, UserController.getProfile);
 
 /**
  * @swagger
- * /api/v1/user/me:
+ * /api/user/me:
  *   patch:
  *     summary: Update current user profile
  *     tags: [User]
@@ -157,7 +157,7 @@ router.patch('/me', authenticate, validate(updateUserValidation), UserController
 
 /**
  * @swagger
- * /api/v1/user/me:
+ * /api/user/me:
  *   delete:
  *     summary: Delete current user account
  *     tags: [User]

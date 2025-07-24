@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 export const connectDB = async (): Promise<void> => {
   try {
-    const mongoUrl = process.env.MONGO_URI as string | 'undefined';
+    const mongoUrl = process.env.MONGO_URI || 'mongodb://localhost:27017/TalabatDB';
 
     await mongoose.connect(mongoUrl, {
       maxPoolSize: 10,
@@ -13,7 +13,6 @@ export const connectDB = async (): Promise<void> => {
 
     console.log(`MongoDB connected: ${mongoose.connection.host}`);
 
-    // Handle connection events
     mongoose.connection.on('error', (err) => {
       console.error('MongoDB connection error:', err);
     });
@@ -22,7 +21,6 @@ export const connectDB = async (): Promise<void> => {
       console.log('MongoDB disconnected');
     });
 
-    // Handle app termination
     process.on('SIGINT', async () => {
       await mongoose.connection.close();
       console.log('MongoDB connection closed due to app termination');

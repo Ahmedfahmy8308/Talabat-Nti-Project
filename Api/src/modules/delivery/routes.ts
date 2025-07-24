@@ -115,7 +115,7 @@ router.use(authenticate, isDelivery);
 
 /**
  * @swagger
- * /api/v1/delivery/available-orders:
+ * /api/delivery/available-orders:
  *   get:
  *     summary: Get available orders for delivery
  *     tags: [Delivery]
@@ -163,7 +163,7 @@ router.get('/available-orders', DeliveryController.getAvailableOrders);
 
 /**
  * @swagger
- * /api/v1/delivery/orders/{orderId}/accept:
+ * /api/delivery/orders/{orderId}/accept:
  *   post:
  *     summary: Accept an available order
  *     tags: [Delivery]
@@ -201,7 +201,7 @@ router.post('/orders/:orderId/accept', DeliveryController.acceptOrder);
 
 /**
  * @swagger
- * /api/v1/delivery/my-deliveries:
+ * /api/delivery/my-deliveries:
  *   get:
  *     summary: Get my assigned deliveries
  *     tags: [Delivery]
@@ -256,7 +256,7 @@ router.get('/my-deliveries', DeliveryController.getMyDeliveries);
 
 /**
  * @swagger
- * /api/v1/delivery/orders/{orderId}:
+ * /api/delivery/orders/{orderId}:
  *   get:
  *     summary: Get order details
  *     tags: [Delivery]
@@ -294,7 +294,7 @@ router.get('/orders/:orderId', DeliveryController.getOrderById);
 
 /**
  * @swagger
- * /api/v1/delivery/orders/{orderId}/status:
+ * /api/delivery/orders/{orderId}/status:
  *   patch:
  *     summary: Update delivery status
  *     tags: [Delivery]
@@ -347,7 +347,7 @@ router.patch('/orders/:orderId/status', validate(updateDeliveryStatusValidation)
 
 /**
  * @swagger
- * /api/v1/delivery/stats:
+ * /api/delivery/stats:
  *   get:
  *     summary: Get delivery statistics
  *     tags: [Delivery]
