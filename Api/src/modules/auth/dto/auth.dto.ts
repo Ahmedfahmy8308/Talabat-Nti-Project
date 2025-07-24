@@ -1,6 +1,6 @@
-import { body, query } from 'express-validator';
+import { body, query, param } from 'express-validator';
 
-// Registration validation rules
+// Registration validation for different user types
 export const registerCustomerValidation = [
   body('email')
     .isEmail()
@@ -233,11 +233,27 @@ export const loginValidation = [
 
   body('password')
     .notEmpty()
-    .withMessage('Password is required')
+    .withMessage('Password is required'),
+
+  body('rememberMe')
+    .optional()
+    .isBoolean()
+    .withMessage('Remember me must be a boolean value')
 ];
 
 // OTP validation
-export const otpValidation = [
+export const sendOtpValidation = [
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email')
+    .normalizeEmail(),
+
+  body('type')
+    .isIn(['verification', 'password_reset'])
+    .withMessage('OTP type must be verification or password_reset')
+];
+
+export const verifyOtpValidation = [
   body('email')
     .isEmail()
     .withMessage('Please provide a valid email')
@@ -247,10 +263,14 @@ export const otpValidation = [
     .isLength({ min: 6, max: 6 })
     .withMessage('OTP must be 6 digits')
     .isNumeric()
-    .withMessage('OTP must contain only numbers')
+    .withMessage('OTP must contain only numbers'),
+
+  body('type')
+    .isIn(['verification', 'password_reset'])
+    .withMessage('OTP type must be verification or password_reset')
 ];
 
-// Password reset validation
+// Password operations validation
 export const resetPasswordValidation = [
   body('email')
     .isEmail()
@@ -267,10 +287,17 @@ export const resetPasswordValidation = [
     .isLength({ min: 6 })
     .withMessage('New password must be at least 6 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number')
+    .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number'),
+
+  body('confirmPassword')
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error('Password confirmation does not match password');
+      }
+      return true;
+    })
 ];
 
-// Change password validation
 export const changePasswordValidation = [
   body('currentPassword')
     .notEmpty()
@@ -280,230 +307,18 @@ export const changePasswordValidation = [
     .isLength({ min: 6 })
     .withMessage('New password must be at least 6 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number')
+    .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number'),
+
+  body('confirmPassword')
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error('Password confirmation does not match password');
+      }
+      return true;
+    })
 ];
 
-// Update profile validations
-export const updateCustomerValidation = [
-  body('firstName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('phone')
-    .optional()
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
-
-  body('address.street')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Street address must be between 5 and 200 characters'),
-
-  body('address.city')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('City must be between 2 and 50 characters'),
-
-  body('address.state')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('State must be between 2 and 50 characters'),
-
-  body('address.zipCode')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 10 })
-    .withMessage('Zip code must be between 5 and 10 characters'),
-
-  body('address.coordinates.latitude')
-    .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
-
-  body('address.coordinates.longitude')
-    .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180')
-];
-
-// Query validation
-export const userQueryValidation = [
-  query('page')
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage('Page must be a positive integer'),
-
-  query('limit')
-    .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage('Limit must be between 1 and 100'),
-
-  query('search')
-    .optional()
-    .trim()
-    .isLength({ max: 100 })
-    .withMessage('Search term cannot exceed 100 characters'),
-
-  query('role')
-    .optional()
-    .isIn(['admin', 'customer', 'restaurant', 'delivery'])
-    .withMessage('Role must be one of: admin, customer, restaurant, delivery'),
-
-  query('sortBy')
-    .optional()
-    .isIn(['createdAt', 'updatedAt', 'email', 'firstName', 'lastName'])
-    .withMessage('Invalid sort field'),
-
-  query('sortOrder')
-    .optional()
-    .isIn(['asc', 'desc'])
-    .withMessage('Sort order must be asc or desc')
-];
-
-// Admin validation for user status updates
-export const updateUserStatusValidation = [
-  body('status')
-    .isIn(['active', 'inactive', 'banned'])
-    .withMessage('Status must be active, inactive, or banned'),
-
-  body('reason')
-    .optional()
-    .trim()
-    .isLength({ max: 200 })
-    .withMessage('Reason cannot exceed 200 characters')
-];
-
-// Restaurant approval validation
-export const approveRestaurantValidation = [
-  body('status')
-    .isIn(['approved', 'rejected'])
-    .withMessage('Status must be approved or rejected'),
-
-  body('reason')
-    .optional()
-    .trim()
-    .isLength({ max: 200 })
-    .withMessage('Reason cannot exceed 200 characters')
-];
-
-// Legacy validation (keeping backward compatibility)
-export const registerValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail(),
-
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
-
-  body('firstName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('role')
-    .isIn(['admin', 'customer', 'restaurant', 'delivery'])
-    .withMessage('Role must be one of: admin, customer, restaurant, delivery'),
-
-  body('phone')
-    .optional()
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number')
-];
-
-export const updateUserValidation = [
-  body('firstName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('First name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-
-  body('lastName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Last name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-
-  body('phone')
-    .optional()
-    .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
-
-  body('address.street')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 200 })
-    .withMessage('Street address must be between 5 and 200 characters'),
-
-  body('address.city')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('City must be between 2 and 100 characters'),
-
-  body('address.state')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('State must be between 2 and 100 characters'),
-
-  body('address.zipCode')
-    .optional()
-    .trim()
-    .isLength({ min: 5, max: 10 })
-    .withMessage('Zip code must be between 5 and 10 characters'),
-
-  body('address.coordinates.lat')
-    .optional()
-    .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be between -90 and 90'),
-
-  body('address.coordinates.lng')
-    .optional()
-    .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be between -180 and 180')
-];
-
-// Email validation
-export const emailValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email')
-    .normalizeEmail()
-];
-
-// Refresh token validation
+// Token operations validation
 export const refreshTokenValidation = [
   body('refreshToken')
     .notEmpty()
@@ -511,3 +326,131 @@ export const refreshTokenValidation = [
     .isLength({ min: 10 })
     .withMessage('Invalid refresh token format')
 ];
+
+export const logoutValidation = [
+  body('refreshToken')
+    .optional()
+    .isLength({ min: 10 })
+    .withMessage('Invalid refresh token format')
+];
+
+// Social auth validation
+export const socialAuthValidation = [
+  body('provider')
+    .isIn(['google', 'facebook', 'apple'])
+    .withMessage('Provider must be google, facebook, or apple'),
+
+  body('token')
+    .notEmpty()
+    .withMessage('Social auth token is required'),
+
+  body('firstName')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('First name must be between 2 and 50 characters')
+    .matches(/^[a-zA-Z\s]+$/)
+    .withMessage('First name can only contain letters and spaces'),
+
+  body('lastName')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Last name must be between 2 and 50 characters')
+    .matches(/^[a-zA-Z\s]+$/)
+    .withMessage('Last name can only contain letters and spaces'),
+
+  body('profilePicture')
+    .optional()
+    .isURL()
+    .withMessage('Profile picture must be a valid URL')
+];
+
+// Email verification
+export const resendVerificationEmailValidation = [
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email')
+    .normalizeEmail()
+];
+
+// Two-factor authentication
+export const enable2FAValidation = [
+  body('password')
+    .notEmpty()
+    .withMessage('Password is required to enable 2FA')
+];
+
+export const verify2FAValidation = [
+  body('token')
+    .isLength({ min: 6, max: 6 })
+    .withMessage('2FA token must be 6 digits')
+    .isNumeric()
+    .withMessage('2FA token must contain only numbers')
+];
+
+export const disable2FAValidation = [
+  body('password')
+    .notEmpty()
+    .withMessage('Password is required to disable 2FA'),
+
+  body('token')
+    .isLength({ min: 6, max: 6 })
+    .withMessage('2FA token must be 6 digits')
+    .isNumeric()
+    .withMessage('2FA token must contain only numbers')
+];
+
+// Account verification and recovery
+export const requestPasswordResetValidation = [
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email')
+    .normalizeEmail()
+];
+
+export const checkEmailExistsValidation = [
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email')
+    .normalizeEmail()
+];
+
+// Security validation
+export const updateSecuritySettingsValidation = [
+  body('settings.twoFactorEnabled')
+    .optional()
+    .isBoolean()
+    .withMessage('Two factor enabled must be a boolean value'),
+
+  body('settings.loginNotifications')
+    .optional()
+    .isBoolean()
+    .withMessage('Login notifications must be a boolean value'),
+
+  body('settings.sessionTimeout')
+    .optional()
+    .isInt({ min: 15, max: 1440 })
+    .withMessage('Session timeout must be between 15 and 1440 minutes')
+];
+
+// Device management
+export const revokeDeviceValidation = [
+  param('deviceId')
+    .isMongoId()
+    .withMessage('Please provide a valid device ID')
+];
+
+export const updateDeviceNameValidation = [
+  param('deviceId')
+    .isMongoId()
+    .withMessage('Please provide a valid device ID'),
+
+  body('name')
+    .trim()
+    .isLength({ min: 1, max: 50 })
+    .withMessage('Device name must be between 1 and 50 characters')
+];
+
+// Legacy compatibility
+export const registerValidation = registerCustomerValidation;
