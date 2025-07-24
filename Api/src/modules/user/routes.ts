@@ -20,7 +20,7 @@ const userController = new UserController();
 
 /**
  * @swagger
- * /api/v1/users/profile:
+ * /api/users/profile:
  *   get:
  *     summary: Get current user profile
  *     tags: [Users]
@@ -36,7 +36,7 @@ router.get('/profile', authenticate, userController.getProfile);
 
 /**
  * @swagger
- * /api/v1/users/profile:
+ * /api/users/profile:
  *   put:
  *     summary: Update user profile
  *     tags: [Users]
@@ -74,7 +74,7 @@ router.put('/profile', authenticate, userController.updateProfile);
 
 /**
  * @swagger
- * /api/v1/users/favorites:
+ * /api/users/favorites:
  *   post:
  *     summary: Add restaurant to favorites (customers only)
  *     tags: [Users]
@@ -106,7 +106,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/users/favorites/{restaurantId}:
+ * /api/users/favorites/{restaurantId}:
  *   delete:
  *     summary: Remove restaurant from favorites
  *     tags: [Users]
@@ -134,7 +134,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/v1/users/favorites:
+ * /api/users/favorites:
  *   get:
  *     summary: Get favorite restaurants
  *     tags: [Users]
@@ -153,7 +153,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/users/location:
+ * /api/users/location:
  *   patch:
  *     summary: Update location (delivery users only)
  *     tags: [Users]
@@ -189,7 +189,7 @@ router.patch(
 
 /**
  * @swagger
- * /api/v1/users/go-online:
+ * /api/users/go-online:
  *   post:
  *     summary: Go online (delivery users only)
  *     tags: [Users]
@@ -208,7 +208,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/users/go-offline:
+ * /api/users/go-offline:
  *   post:
  *     summary: Go offline (delivery users only)
  *     tags: [Users]
@@ -227,7 +227,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/users/toggle-status:
+ * /api/users/toggle-status:
  *   post:
  *     summary: Toggle restaurant operational status
  *     tags: [Users]
@@ -246,7 +246,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/users/orders:
+ * /api/users/orders:
  *   get:
  *     summary: Get order history
  *     tags: [Users]
@@ -273,7 +273,7 @@ router.get('/orders', authenticate, userController.getOrderHistory);
 
 /**
  * @swagger
- * /api/v1/users/restaurants:
+ * /api/users/restaurants:
  *   get:
  *     summary: Get all restaurants
  *     tags: [Users]
@@ -302,7 +302,7 @@ router.get('/restaurants', optionalAuth, userController.getRestaurants);
 
 /**
  * @swagger
- * /api/v1/users/delivery:
+ * /api/users/delivery:
  *   get:
  *     summary: Get available delivery users
  *     tags: [Users]
@@ -314,7 +314,7 @@ router.get('/delivery', userController.getDeliveryUsers);
 
 /**
  * @swagger
- * /api/v1/users/{userId}:
+ * /api/users/{userId}:
  *   get:
  *     summary: Get user by ID (public info only)
  *     tags: [Users]

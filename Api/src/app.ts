@@ -114,25 +114,15 @@ class App {
         status: 'OK',
         message: 'Talabat API is running',
         timestamp: new Date().toISOString(),
-        version: process.env.npm_package_version || '1.0.0',
         environment: process.env.NODE_ENV || 'development',
       });
     });
 
-    // API routes with versioning
-    const API_VERSION = '/api/v1';
-
-    this.app.use(`${API_VERSION}/auth`, authRoutes);
-    this.app.use(`${API_VERSION}/users`, userRoutes);
-    this.app.use(`${API_VERSION}/admin`, adminRoutes);
-    this.app.use(`${API_VERSION}/restaurants`, restaurantRoutes);
-    this.app.use(`${API_VERSION}/delivery`, deliveryRoutes);
-
-    // Backward compatibility routes (without version)
+    // API routes
     this.app.use('/api/auth', authRoutes);
-    this.app.use('/api/user', userRoutes);
+    this.app.use('/api/users', userRoutes);
     this.app.use('/api/admin', adminRoutes);
-    this.app.use('/api/restaurant', restaurantRoutes);
+    this.app.use('/api/restaurants', restaurantRoutes);
     this.app.use('/api/delivery', deliveryRoutes);
 
     // 404 handler for API routes
@@ -141,11 +131,11 @@ class App {
         success: false,
         message: `API endpoint ${req.originalUrl} not found`,
         availableEndpoints: [
-          `${API_VERSION}/auth`,
-          `${API_VERSION}/users`,
-          `${API_VERSION}/admin`,
-          `${API_VERSION}/restaurants`,
-          `${API_VERSION}/delivery`,
+          '/api/auth',
+          '/api/users',
+          '/api/admin',
+          '/api/restaurants',
+          '/api/delivery',
         ],
       });
     });
@@ -155,7 +145,7 @@ class App {
       res.status(404).json({
         success: false,
         message: 'Endpoint not found',
-        hint: 'Try accessing /api/v1/* endpoints or check /swagger for documentation',
+        hint: 'Try accessing /api/* endpoints or check /swagger for documentation',
       });
     });
   }

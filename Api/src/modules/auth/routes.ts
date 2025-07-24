@@ -24,7 +24,7 @@ const authController = new AuthController();
 
 /**
  * @swagger
- * /api/v1/auth/register:
+ * /api/auth/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Authentication]
@@ -69,7 +69,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/auth/login:
+ * /api/auth/login:
  *   post:
  *     summary: Login user
  *     tags: [Authentication]
@@ -98,7 +98,7 @@ router.post('/login', loginValidation, validateRequest, authController.login);
 
 /**
  * @swagger
- * /api/v1/auth/verify-otp:
+ * /api/auth/verify-otp:
  *   post:
  *     summary: Verify OTP for registration or password reset
  *     tags: [Authentication]
@@ -137,7 +137,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/auth/resend-otp:
+ * /api/auth/resend-otp:
  *   post:
  *     summary: Resend OTP
  *     tags: [Authentication]
@@ -172,7 +172,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/auth/forgot-password:
+ * /api/auth/forgot-password:
  *   post:
  *     summary: Request password reset
  *     tags: [Authentication]
@@ -203,7 +203,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/auth/reset-password:
+ * /api/auth/reset-password:
  *   post:
  *     summary: Reset password using OTP
  *     tags: [Authentication]
@@ -242,7 +242,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/auth/change-password:
+ * /api/auth/change-password:
  *   post:
  *     summary: Change password (requires authentication)
  *     tags: [Authentication]
@@ -281,7 +281,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/auth/logout:
+ * /api/auth/logout:
  *   post:
  *     summary: Logout user
  *     tags: [Authentication]
@@ -293,7 +293,7 @@ router.post('/logout', authController.logout);
 
 /**
  * @swagger
- * /api/v1/auth/profile:
+ * /api/auth/profile:
  *   get:
  *     summary: Get current user profile
  *     tags: [Authentication]
@@ -309,7 +309,7 @@ router.get('/profile', authenticate, authController.getProfile);
 
 /**
  * @swagger
- * /api/v1/auth/check:
+ * /api/auth/check:
  *   get:
  *     summary: Check authentication status
  *     tags: [Authentication]
@@ -325,7 +325,7 @@ router.get('/check', authenticate, authController.checkAuth);
 
 /**
  * @swagger
- * /api/v1/auth/refresh:
+ * /api/auth/refresh:
  *   post:
  *     summary: Refresh access token
  *     tags: [Authentication]

@@ -20,7 +20,7 @@ router.use(authorize('admin'));
 
 /**
  * @swagger
- * /api/v1/admin/dashboard:
+ * /api/admin/dashboard:
  *   get:
  *     summary: Get dashboard statistics
  *     tags: [Admin]
@@ -51,7 +51,7 @@ router.get('/dashboard', adminController.getDashboardStats);
 
 /**
  * @swagger
- * /api/v1/admin/users:
+ * /api/admin/users:
  *   get:
  *     summary: Get all users with filtering
  *     tags: [Admin]
@@ -95,7 +95,7 @@ router.get('/users', adminController.getUsers);
 
 /**
  * @swagger
- * /api/v1/admin/users/{userId}:
+ * /api/admin/users/{userId}:
  *   get:
  *     summary: Get user by ID
  *     tags: [Admin]
@@ -123,7 +123,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/admin/users/{userId}/approve:
+ * /api/admin/users/{userId}/approve:
  *   post:
  *     summary: Approve or reject restaurant/delivery registration
  *     tags: [Admin]
@@ -167,7 +167,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/admin/users/{userId}/status:
+ * /api/admin/users/{userId}/status:
  *   patch:
  *     summary: Update user active status
  *     tags: [Admin]
@@ -208,7 +208,7 @@ router.patch(
 
 /**
  * @swagger
- * /api/v1/admin/users/{userId}:
+ * /api/admin/users/{userId}:
  *   delete:
  *     summary: Delete user (soft delete)
  *     tags: [Admin]
@@ -234,7 +234,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/v1/admin/pending/restaurants:
+ * /api/admin/pending/restaurants:
  *   get:
  *     summary: Get pending restaurant approvals
  *     tags: [Admin]
@@ -248,7 +248,7 @@ router.get('/pending/restaurants', adminController.getPendingRestaurants);
 
 /**
  * @swagger
- * /api/v1/admin/pending/delivery:
+ * /api/admin/pending/delivery:
  *   get:
  *     summary: Get pending delivery user approvals
  *     tags: [Admin]
@@ -262,7 +262,7 @@ router.get('/pending/delivery', adminController.getPendingDeliveryUsers);
 
 /**
  * @swagger
- * /api/v1/admin/analytics:
+ * /api/admin/analytics:
  *   get:
  *     summary: Get platform analytics
  *     tags: [Admin]

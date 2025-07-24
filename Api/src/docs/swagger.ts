@@ -5,7 +5,7 @@ const options: swaggerJsdoc.Options = {
     openapi: '3.0.0',
     info: {
       title: 'Talbat API',
-      version: '1.0.0',
+      version: '1.0',
       description:
         'A comprehensive food delivery platform API built with Express.js, TypeScript, and MongoDB',
     },
