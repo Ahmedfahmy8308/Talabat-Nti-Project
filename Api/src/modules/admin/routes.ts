@@ -42,10 +42,121 @@ router.use(authorize('admin'));
  *     responses:
  *       200:
  *         description: Dashboard statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: number
+ *                         customers:
+ *                           type: number
+ *                         restaurants:
+ *                           type: number
+ *                         delivery:
+ *                           type: number
+ *                         activeUsers:
+ *                           type: number
+ *                         newUsersThisMonth:
+ *                           type: number
+ *                     orders:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: number
+ *                         pending:
+ *                           type: number
+ *                         completed:
+ *                           type: number
+ *                         cancelled:
+ *                           type: number
+ *                         totalRevenue:
+ *                           type: number
+ *                         averageOrderValue:
+ *                           type: number
+ *                     restaurants:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: number
+ *                         active:
+ *                           type: number
+ *                         pending:
+ *                           type: number
+ *                         verified:
+ *                           type: number
+ *                         rejected:
+ *                           type: number
+ *                     delivery:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: number
+ *                         active:
+ *                           type: number
+ *                         pending:
+ *                           type: number
+ *                         verified:
+ *                           type: number
+ *                         online:
+ *                           type: number
+ *                     revenue:
+ *                       type: object
+ *                       properties:
+ *                         totalPlatformRevenue:
+ *                           type: number
+ *                         monthlyRevenue:
+ *                           type: number
+ *                         averageCommission:
+ *                           type: number
+ *                         topRestaurants:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: string
+ *                               name:
+ *                                 type: string
+ *                               revenue:
+ *                                 type: number
+ *                               orders:
+ *                                 type: number
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
  *       403:
  *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
  */
 router.get('/dashboard', adminController.getDashboardStats);
 
@@ -90,6 +201,78 @@ router.get('/dashboard', adminController.getDashboardStats);
  *     responses:
  *       200:
  *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           email:
+ *                             type: string
+ *                           firstName:
+ *                             type: string
+ *                           lastName:
+ *                             type: string
+ *                           role:
+ *                             type: string
+ *                             enum: [customer, restaurant, delivery]
+ *                           isActive:
+ *                             type: boolean
+ *                           isEmailVerified:
+ *                             type: boolean
+ *                           verificationStatus:
+ *                             type: string
+ *                             enum: [pending, verified, rejected]
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           lastLogin:
+ *                             type: string
+ *                             format: date-time
+ *                     totalUsers:
+ *                       type: number
+ *                     totalPages:
+ *                       type: number
+ *                     currentPage:
+ *                       type: number
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
  */
 router.get('/users', adminController.getUsers);
 
@@ -111,8 +294,80 @@ router.get('/users', adminController.getUsers);
  *     responses:
  *       200:
  *         description: User retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     firstName:
+ *                       type: string
+ *                     lastName:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                       enum: [customer, restaurant, delivery]
+ *                     isActive:
+ *                       type: boolean
+ *                     isEmailVerified:
+ *                       type: boolean
+ *                     verificationStatus:
+ *                       type: string
+ *                       enum: [pending, verified, rejected]
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     lastLogin:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
  *       404:
  *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
  */
 router.get(
   '/users/:userId',
@@ -148,11 +403,92 @@ router.get(
  *               status:
  *                 type: string
  *                 enum: [verified, rejected]
+ *                 description: Approval status for the user
  *               reason:
  *                 type: string
+ *                 description: Optional reason for rejection or additional notes
+ *             example:
+ *               status: "verified"
+ *               reason: "All documents verified successfully"
  *     responses:
  *       200:
  *         description: User approval status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User approval status updated successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userId:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                       enum: [verified, rejected]
+ *                     reason:
+ *                       type: string
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Invalid request data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Status must be verified or rejected"
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
  */
 router.post(
   '/users/:userId/approve',
@@ -191,11 +527,91 @@ router.post(
  *             properties:
  *               isActive:
  *                 type: boolean
+ *                 description: Whether the user should be active or inactive
  *               reason:
  *                 type: string
+ *                 description: Optional reason for status change
+ *             example:
+ *               isActive: false
+ *               reason: "Suspended due to policy violation"
  *     responses:
  *       200:
  *         description: User status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User status updated successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userId:
+ *                       type: string
+ *                     isActive:
+ *                       type: boolean
+ *                     reason:
+ *                       type: string
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Invalid request data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "isActive must be a boolean"
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
  */
 router.patch(
   '/users/:userId/status',
@@ -224,6 +640,64 @@ router.patch(
  *     responses:
  *       200:
  *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User deleted successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userId:
+ *                       type: string
+ *                     deletedAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
  */
 router.delete(
   '/users/:userId',
@@ -243,6 +717,76 @@ router.delete(
  *     responses:
  *       200:
  *         description: Pending restaurants retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       firstName:
+ *                         type: string
+ *                       lastName:
+ *                         type: string
+ *                       restaurantName:
+ *                         type: string
+ *                       businessLicense:
+ *                         type: string
+ *                       address:
+ *                         type: object
+ *                         properties:
+ *                           street:
+ *                             type: string
+ *                           city:
+ *                             type: string
+ *                           state:
+ *                             type: string
+ *                           zipCode:
+ *                             type: string
+ *                       phone:
+ *                         type: string
+ *                       submittedAt:
+ *                         type: string
+ *                         format: date-time
+ *                       verificationStatus:
+ *                         type: string
+ *                         enum: [pending]
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
  */
 router.get('/pending/restaurants', adminController.getPendingRestaurants);
 
@@ -257,6 +801,75 @@ router.get('/pending/restaurants', adminController.getPendingRestaurants);
  *     responses:
  *       200:
  *         description: Pending delivery users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       firstName:
+ *                         type: string
+ *                       lastName:
+ *                         type: string
+ *                       phone:
+ *                         type: string
+ *                       driverLicense:
+ *                         type: string
+ *                       vehicleInfo:
+ *                         type: object
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             enum: [car, motorcycle, bicycle]
+ *                           brand:
+ *                             type: string
+ *                           model:
+ *                             type: string
+ *                           plateNumber:
+ *                             type: string
+ *                       submittedAt:
+ *                         type: string
+ *                         format: date-time
+ *                       verificationStatus:
+ *                         type: string
+ *                         enum: [pending]
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
  */
 router.get('/pending/delivery', adminController.getPendingDeliveryUsers);
 
@@ -284,6 +897,115 @@ router.get('/pending/delivery', adminController.getPendingDeliveryUsers);
  *     responses:
  *       200:
  *         description: Platform analytics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userAnalytics:
+ *                       type: object
+ *                       properties:
+ *                         registrationTrends:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               date:
+ *                                 type: string
+ *                                 format: date
+ *                               customers:
+ *                                 type: number
+ *                               restaurants:
+ *                                 type: number
+ *                               delivery:
+ *                                 type: number
+ *                         activeUsers:
+ *                           type: object
+ *                           properties:
+ *                             daily:
+ *                               type: number
+ *                             weekly:
+ *                               type: number
+ *                             monthly:
+ *                               type: number
+ *                     orderAnalytics:
+ *                       type: object
+ *                       properties:
+ *                         orderTrends:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               date:
+ *                                 type: string
+ *                                 format: date
+ *                               totalOrders:
+ *                                 type: number
+ *                               revenue:
+ *                                 type: number
+ *                         peakHours:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               hour:
+ *                                 type: number
+ *                               orderCount:
+ *                                 type: number
+ *                     revenueAnalytics:
+ *                       type: object
+ *                       properties:
+ *                         totalRevenue:
+ *                           type: number
+ *                         commissionRevenue:
+ *                           type: number
+ *                         averageOrderValue:
+ *                           type: number
+ *                         topPerformingRestaurants:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               restaurantId:
+ *                                 type: string
+ *                               name:
+ *                                 type: string
+ *                               revenue:
+ *                                 type: number
+ *                               orders:
+ *                                 type: number
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Authentication token required"
+ *       403:
+ *         description: Admin access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Admin access required"
  */
 router.get('/analytics', adminController.getPlatformAnalytics);
 

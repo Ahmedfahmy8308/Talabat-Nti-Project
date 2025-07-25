@@ -1,10 +1,9 @@
-export interface RegisterUserDTO {
+export interface RegisterCustomerDTO {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
   phone?: string;
-  role: 'customer' | 'restaurant' | 'delivery';
   address?: {
     street: string;
     city: string;
@@ -15,8 +14,15 @@ export interface RegisterUserDTO {
       lng: number;
     };
   };
-  // Restaurant specific fields
-  restaurantDetails?: {
+}
+
+export interface RegisterRestaurantDTO {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  restaurantDetails: {
     name: string;
     description?: string;
     cuisineType: string[];
@@ -25,25 +31,58 @@ export interface RegisterUserDTO {
     deliveryFee: number;
     serviceRadius: number;
   };
-  businessInfo?: {
+  businessInfo: {
     licenseNumber: string;
     taxId: string;
   };
-  // Delivery specific fields
-  vehicleInfo?: {
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
+export interface RegisterDeliveryDTO {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  vehicleInfo: {
     type: 'bike' | 'car' | 'motorcycle' | 'scooter';
     licensePlate?: string;
     color?: string;
     model?: string;
   };
-  deliveryZones?: string[];
-  documents?: {
-    licenseNumber?: string;
+  deliveryZones: string[];
+  documents: {
+    licenseNumber: string;
     licenseImage?: string;
     vehicleRegistration?: string;
     identityProof?: string;
   };
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
+  };
 }
+
+// Union type for registration that includes role and type-specific properties
+export type RegisterUserDTO =
+  | (RegisterCustomerDTO & { role: 'customer' })
+  | (RegisterRestaurantDTO & { role: 'restaurant' })
+  | (RegisterDeliveryDTO & { role: 'delivery' });
 
 export interface LoginUserDTO {
   email: string;

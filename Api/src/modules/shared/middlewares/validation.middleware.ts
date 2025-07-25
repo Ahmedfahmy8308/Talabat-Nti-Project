@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult, ValidationChain } from 'express-validator';
-import { AppError } from './error.middleware';
 import { Helpers } from '../utils/helpers';
 
 export const validateRequest = (
@@ -31,7 +30,7 @@ export const validateRequest = (
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Run all validations
-    for (let validation of validations) {
+    for (const validation of validations) {
       const result = await validation.run(req);
       if (!result.isEmpty()) {
         break;

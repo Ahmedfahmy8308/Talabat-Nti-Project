@@ -68,7 +68,7 @@ export const preventDuplicateEmail = async (
     }
 
     // Import User model dynamically to avoid circular dependencies
-    const { User } = await import('../../user/schemas');
+    const { User } = await import('../../shared/schemas/base-user.schema');
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
 

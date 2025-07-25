@@ -1,5 +1,6 @@
-import { User } from '../modules/user/schemas';
+import { User } from '../modules/shared/schemas/base-user.schema';
 import { Helpers } from '../modules/shared/utils/helpers';
+import { Logger } from '../modules/shared/utils/logger';
 
 export const initializeAdmin = async (): Promise<void> => {
   try {
@@ -8,7 +9,7 @@ export const initializeAdmin = async (): Promise<void> => {
     });
 
     if (adminExists) {
-      console.log('Admin user already exists');
+      Logger.info('Admin user already exists');
       return;
     }
 
@@ -16,7 +17,7 @@ export const initializeAdmin = async (): Promise<void> => {
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123456';
 
     if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
-      console.warn(
+      Logger.warn(
         'Using default admin credentials. Please set ADMIN_EMAIL and ADMIN_PASSWORD in your .env file',
       );
     }
@@ -35,12 +36,12 @@ export const initializeAdmin = async (): Promise<void> => {
 
     await admin.save();
 
-    console.log('Admin user created successfully');
-    console.log(`Email: ${adminEmail}`);
-    console.log(`Password: ${adminPassword}`);
-    console.log('Please change the admin password after first login');
+    Logger.success('Admin user created successfully');
+    Logger.info(`Email: ${adminEmail}`);
+    Logger.info(`Password: ${adminPassword}`);
+    Logger.warn('Please change the admin password after first login');
   } catch (error) {
-    console.error('Failed to initialize admin user:', error);
+    Logger.error(`Failed to initialize admin user: ${String(error)}`);
     throw error;
   }
 };
@@ -50,22 +51,22 @@ export const performDatabaseMaintenance = async (): Promise<void> => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    console.log('Database maintenance completed');
+    Logger.success('Database maintenance completed');
   } catch (error) {
-    console.error('Database maintenance failed:', error);
+    Logger.error(`Database maintenance failed: ${String(error)}`);
   }
 };
 
 export const initializeApp = async (): Promise<void> => {
   try {
-    console.log('Initializing Talabat API...');
+    Logger.info('Initializing Talabat API...');
 
     await initializeAdmin();
     await performDatabaseMaintenance();
 
-    console.log('Application initialized successfully');
+    Logger.success('Application initialized successfully');
   } catch (error) {
-    console.error('Application initialization failed:', error);
+    Logger.error(`Application initialization failed: ${String(error)}`);
     throw error;
   }
 };

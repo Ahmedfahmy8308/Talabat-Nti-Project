@@ -53,6 +53,7 @@ export interface IOrder extends Document {
   preparationTime: number; // in minutes
   specialInstructions?: string;
   cancellationReason?: string;
+  statusReason?: string;
   rating?: {
     food: number;
     delivery: number;
@@ -60,6 +61,12 @@ export interface IOrder extends Document {
     comment?: string;
     ratedAt: Date;
   };
+  statusHistory: {
+    status: string;
+    timestamp: Date;
+    note?: string;
+    updatedBy?: mongoose.Types.ObjectId;
+  }[];
   timeline: {
     status: string;
     timestamp: Date;
@@ -292,6 +299,31 @@ const orderSchema = new Schema<IOrder>(
         default: Date.now,
       },
     },
+    statusReason: {
+      type: String,
+      trim: true,
+    },
+    statusHistory: [
+      {
+        status: {
+          type: String,
+          required: true,
+        },
+        timestamp: {
+          type: Date,
+          required: true,
+          default: Date.now,
+        },
+        note: {
+          type: String,
+          trim: true,
+        },
+        updatedBy: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      },
+    ],
     timeline: [
       {
         status: {

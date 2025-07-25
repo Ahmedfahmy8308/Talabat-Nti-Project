@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Helpers } from '../utils/helpers';
 import { AppError } from './error.middleware';
-import { User } from '../../user/schemas';
+import { User } from '../../shared/schemas/base-user.schema';
 
 export interface AuthenticatedRequest extends Request {
   user?: any;

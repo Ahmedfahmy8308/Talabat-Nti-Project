@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { AdminService } from '../services/admin.service';
 import { asyncHandler } from '../../shared/middlewares/error.middleware';
 import { Helpers } from '../../shared/utils/helpers';
-import { AuthenticatedRequest } from '../../shared/middlewares/auth.middleware';
 
 export class AdminController {
   private adminService: AdminService;
@@ -15,7 +14,7 @@ export class AdminController {
    * Get dashboard statistics
    */
   getDashboardStats = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, __next: NextFunction) => {
       const stats = await this.adminService.getDashboardStats(req.query);
 
       res
@@ -34,7 +33,7 @@ export class AdminController {
    * Get all users with filtering
    */
   getUsers = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, __next: NextFunction) => {
       const result = await this.adminService.getUsers(req.query);
 
       res.status(200).json(
@@ -56,7 +55,7 @@ export class AdminController {
    * Get user by ID
    */
   getUserById = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const { userId } = req.params;
       const user = await this.adminService.getUserById(userId);
 
@@ -72,7 +71,7 @@ export class AdminController {
    * Approve or reject restaurant/delivery registration
    */
   approveUser = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const { userId } = req.params;
       await this.adminService.approveUser({
         userId,
@@ -94,7 +93,7 @@ export class AdminController {
    * Update user active status
    */
   updateUserStatus = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const { userId } = req.params;
       await this.adminService.updateUserStatus({
         userId,
@@ -111,7 +110,7 @@ export class AdminController {
    * Delete user (soft delete)
    */
   deleteUser = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const { userId } = req.params;
       await this.adminService.deleteUser(userId);
 
@@ -125,7 +124,7 @@ export class AdminController {
    * Get pending restaurant approvals
    */
   getPendingRestaurants = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const restaurants = await this.adminService.getPendingRestaurants();
 
       res
@@ -144,7 +143,7 @@ export class AdminController {
    * Get pending delivery user approvals
    */
   getPendingDeliveryUsers = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const deliveryUsers = await this.adminService.getPendingDeliveryUsers();
 
       res
@@ -163,7 +162,7 @@ export class AdminController {
    * Get platform analytics
    */
   getPlatformAnalytics = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const analytics = await this.adminService.getPlatformAnalytics(
         req.query as any,
       );

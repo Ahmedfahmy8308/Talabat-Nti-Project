@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { User, IBaseUser } from './base-user.schema';
+import { User, IBaseUser } from '../../shared/schemas/base-user.schema';
 
 export interface ICustomer extends IBaseUser {
   role: 'customer';

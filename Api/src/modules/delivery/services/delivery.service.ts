@@ -1,4 +1,4 @@
-import { Delivery } from '../../user/schemas';
+import { Delivery } from '../../delivery/schemas/delivery.schema';
 import { AppError } from '../../shared/middlewares/error.middleware';
 import { Helpers } from '../../shared/utils/helpers';
 import {

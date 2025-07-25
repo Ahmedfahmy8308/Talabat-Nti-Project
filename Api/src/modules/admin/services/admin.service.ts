@@ -1,4 +1,7 @@
-import { User, Customer, Restaurant, Delivery } from '../../user/schemas';
+import { User } from '../../shared/schemas/base-user.schema';
+import { Restaurant } from '../../restaurant/schemas/restaurant.schema';
+import { Delivery } from '../../delivery/schemas/delivery.schema';
+import { Customer } from '../../customer/schemas/customer.schema';
 import Order from '../../order/schemas/order.schema';
 import { AppError } from '../../shared/middlewares/error.middleware';
 import { Helpers } from '../../shared/utils/helpers';

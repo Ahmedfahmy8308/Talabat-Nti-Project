@@ -9,13 +9,17 @@ import swaggerSpec from './docs/swagger';
 import { connectDB } from './config/database';
 import { initializeApp } from './config/startup';
 import { errorHandler } from './modules/shared/middlewares/error.middleware';
+import { Logger } from './modules/shared/utils/logger';
 
 // Import routes
 import authRoutes from './modules/auth/routes';
-import userRoutes from './modules/user/routes';
 import adminRoutes from './modules/admin/routes';
-import restaurantRoutes from './modules/restaurant/routes';
 import deliveryRoutes from './modules/delivery/routes';
+import customerRoutes from './modules/customer/routes';
+import orderRoutes from './modules/order/routes';
+import mealRoutes from './modules/meal/routes';
+import restaurantPublicRoutes from './modules/restaurant/routes/public.routes';
+import restaurantUserRoutes from './modules/restaurant/routes/restaurant-user.routes';
 
 // Load environment variables
 dotenv.config();
@@ -29,7 +33,7 @@ class App {
     this.initializeSwagger();
     this.initializeRoutes();
     this.initializeErrorHandling();
-    this.connectToDatabase();
+    void this.connectToDatabase();
   }
 
   private initializeMiddlewares(): void {
@@ -71,7 +75,7 @@ class App {
         verify: (req: any, res: any, buf: Buffer) => {
           try {
             JSON.parse(buf.toString());
-          } catch (e) {
+          } catch {
             res.status(400).json({
               success: false,
               message: 'Invalid JSON format',
@@ -120,10 +124,13 @@ class App {
 
     // API routes
     this.app.use('/api/auth', authRoutes);
-    this.app.use('/api/users', userRoutes);
     this.app.use('/api/admin', adminRoutes);
-    this.app.use('/api/restaurants', restaurantRoutes);
     this.app.use('/api/delivery', deliveryRoutes);
+    this.app.use('/api/customer', customerRoutes);
+    this.app.use('/api/orders', orderRoutes);
+    this.app.use('/api/meals', mealRoutes);
+    this.app.use('/api/restaurants', restaurantPublicRoutes);
+    this.app.use('/api/user/restaurants', restaurantUserRoutes);
 
     // 404 handler for API routes
     this.app.use('/api/*', (req, res) => {
@@ -132,15 +139,16 @@ class App {
         message: `API endpoint ${req.originalUrl} not found`,
         availableEndpoints: [
           '/api/auth',
-          '/api/users',
           '/api/admin',
           '/api/restaurants',
+          '/api/meals',
           '/api/delivery',
+          '/api/customer',
+          '/api/orders',
         ],
       });
     });
 
-    // General 404 handler
     this.app.use('*', (req, res) => {
       res.status(404).json({
         success: false,
@@ -151,7 +159,6 @@ class App {
   }
 
   private initializeSwagger(): void {
-    // Swagger configuration
     const swaggerOptions = {
       explorer: true,
       customCss: '.swagger-ui .topbar { display: none }',
@@ -160,11 +167,6 @@ class App {
 
     this.app.use(
       '/swagger',
-      swaggerUi.serve,
-      swaggerUi.setup(swaggerSpec, swaggerOptions),
-    );
-    this.app.use(
-      '/api-docs',
       swaggerUi.serve,
       swaggerUi.setup(swaggerSpec, swaggerOptions),
     );
@@ -177,63 +179,58 @@ class App {
   private async connectToDatabase(): Promise<void> {
     try {
       await connectDB();
-      console.log('Database connected successfully');
-
-      // Initialize application (create admin user, etc.)
+      Logger.success('Database connected successfully');
       await initializeApp();
     } catch (error) {
-      console.error('Database connection failed:', error);
+      Logger.error(`Database connection failed: ${error}`);
       process.exit(1);
     }
   }
 
   public listen(port: number): void {
     this.app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-      console.log(`API Documentation: http://localhost:${port}/swagger`);
-      console.log(`Health Check: http://localhost:${port}/health`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      Logger.server(`Server running on port ${port}`);
+      Logger.info(`API Documentation: http://localhost:${port}/swagger`);
+      Logger.info(`Health Check: http://localhost:${port}/health`);
+      Logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   }
 }
 
 export default App;
 
-// Initialize and start the server directly
 const startServer = async (): Promise<void> => {
   try {
     const app = new App();
     const PORT = parseInt(process.env.PORT || '5000', 10);
 
-    // Graceful shutdown
     process.on('SIGTERM', () => {
-      console.log('🔴 SIGTERM received, shutting down gracefully');
+      Logger.warn('SIGTERM received, shutting down gracefully');
       process.exit(0);
     });
 
     process.on('SIGINT', () => {
-      console.log('🔴 SIGINT received, shutting down gracefully');
+      Logger.warn('SIGINT received, shutting down gracefully');
       process.exit(0);
     });
 
-    process.on('unhandledRejection', (reason, promise) => {
-      console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    process.on('unhandledRejection', (reason, _promise) => {
+      Logger.error(`Unhandled Rejection: ${String(reason)}`);
       process.exit(1);
     });
 
     process.on('uncaughtException', (error) => {
-      console.error('❌ Uncaught Exception:', error);
+      Logger.error(`Uncaught Exception: ${String(error)}`);
       process.exit(1);
     });
 
     app.listen(PORT);
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    Logger.error(`Failed to start server: ${error}`);
     process.exit(1);
   }
 };
 
-// Start the server if this file is run directly
 if (require.main === module) {
-  startServer();
+  void startServer();
 }

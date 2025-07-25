@@ -23,6 +23,53 @@ export class AuthController {
   );
 
   /**
+   * Register a new customer
+   */
+  registerCustomer = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const customerData = {
+        ...req.body,
+        role: 'customer',
+      };
+      const result = await this.authService.register(customerData);
+
+      res.status(201).json(result);
+    },
+  );
+
+  /**
+   * Register a new restaurant
+   */
+  registerRestaurant = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const restaurantData = {
+        ...req.body,
+        role: 'restaurant',
+        verificationStatus: 'pending',
+      };
+      const result = await this.authService.register(restaurantData);
+
+      res.status(201).json(result);
+    },
+  );
+
+  /**
+   * Register a new delivery driver
+   */
+  registerDelivery = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const deliveryData = {
+        ...req.body,
+        role: 'delivery',
+        verificationStatus: 'pending',
+      };
+      const result = await this.authService.register(deliveryData);
+
+      res.status(201).json(result);
+    },
+  );
+
+  /**
    * Login user
    */
   login = asyncHandler(
@@ -224,7 +271,7 @@ export class AuthController {
             accessToken: newAccessToken,
           }),
         );
-      } catch (error) {
+      } catch {
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
 
