@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Upcoming Features
 
 #### Frontend Development (v2.0.0) - Planned
-- Modern web application (React/Vue/Angular)
+- Modern web application (Angular)
 - Responsive design for all devices
 - Real-time order tracking interface
 - Customer, restaurant, and delivery dashboards
@@ -127,8 +127,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Contributors
 
-- **Ahmed Fahmy** - Initial development and project lead
+- **Ahmed Fahmy**
   - GitHub: [@Ahmedfahmy8308](https://github.com/Ahmedfahmy8308)
+
+- **Khaled Mostafa**
+  - GitHub: [@khaledrokaya](https://github.com/khaledrokaya)
+
+- **Mohamed Elhusseini**
+  - GitHub: [@Mhmdhusseini](https://github.com/Mhmdhusseini)
+
+- **Abdulrahman Taha**
+  - GitHub: [@Abdulrahman-2-web](https://github.com/Abdulrahman-2-web)
 
 ## Support
 

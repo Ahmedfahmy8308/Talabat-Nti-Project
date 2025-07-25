@@ -22,7 +22,7 @@
     "api",
     "food-delivery"
   ],
-  "author": "Ahmed",
+  "author": "Talabat NTI Team",
   "license": "MIT",
   "dependencies": {
     "@types/nodemailer": "^6.4.17",

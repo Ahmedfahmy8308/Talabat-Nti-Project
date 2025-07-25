@@ -206,9 +206,18 @@ This project is licensed under the MIT License - see the [LICENSE](./Api/LICENSE
 
 ## 👨‍💻 Author
 
-**Ahmed Fahmy**
-- GitHub: [@Ahmedfahmy8308](https://github.com/Ahmedfahmy8308)
-- Project: [Talabat-Nti-Project](https://github.com/Ahmedfahmy8308/Talabat-Nti-Project)
+- **Ahmed Fahmy**
+  - GitHub: [@Ahmedfahmy8308](https://github.com/Ahmedfahmy8308)
+
+- **Khaled Mostafa**
+  - GitHub: [@khaledrokaya](https://github.com/khaledrokaya)
+
+- **Mohamed Elhusseini**
+  - GitHub: [@Mhmdhusseini](https://github.com/Mhmdhusseini)
+
+- **Abdulrahman Taha**
+  - GitHub: [@Abdulrahman-2-web](https://github.com/Abdulrahman-2-web)
+
 
 ## 🙏 Acknowledgments
 

@@ -451,4 +451,14 @@ For support and questions:
 
 ---
 
-**Built with ❤️ by Ahmed**
+
+## 👷‍♂️ Built By
+
+This project was proudly crafted by a dedicated team of developers:
+
+- [**Khaled Mostafa**](https://www.linkedin.com/in/khaled-mostafa-jr/)
+- [**Ahmed Fahmy**](https://www.linkedin.com/in/ahmed-fahmy-174191260/)
+- [**Abdulrahman Taha**](https://www.linkedin.com/in/abdulrahman-taha-01a088345/)
+- [**Mohamed Elhusseini**](https://www.linkedin.com/in/mohamed-elhusseini-42aa05289/)
+
+We combined our skills and efforts to bring this project to life with a focus on performance, scalability, and user experience.
