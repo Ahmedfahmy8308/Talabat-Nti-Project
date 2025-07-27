@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './docs/swagger';
@@ -91,6 +92,9 @@ class App {
         limit: '10mb',
       }),
     );
+
+    // Cookie parsing middleware
+    this.app.use(cookieParser());
 
     // Logging middleware
     if (process.env.NODE_ENV !== 'test') {

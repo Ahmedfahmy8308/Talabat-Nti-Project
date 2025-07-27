@@ -91,7 +91,16 @@ export class AuthController {
 
       res.cookie('refreshToken', result.data.refreshToken, cookieOptions);
 
-      res.status(200).json(result);
+      // Remove tokens from response data
+      const responseData = {
+        ...result,
+        data: {
+          user: result.data.user,
+          // Remove accessToken and refreshToken from response
+        },
+      };
+
+      res.status(200).json(responseData);
     },
   );
 
@@ -117,7 +126,16 @@ export class AuthController {
 
       res.cookie('refreshToken', result.data.refreshToken, cookieOptions);
 
-      res.status(200).json(result);
+      // Remove tokens from response data
+      const responseData = {
+        ...result,
+        data: {
+          user: result.data.user,
+          // Remove accessToken and refreshToken from response
+        },
+      };
+
+      res.status(200).json(responseData);
     },
   );
 
@@ -266,11 +284,9 @@ export class AuthController {
           maxAge: 60 * 60 * 1000, // 1 hour
         });
 
-        res.status(200).json(
-          Helpers.formatResponse(true, 'Token refreshed successfully', {
-            accessToken: newAccessToken,
-          }),
-        );
+        res
+          .status(200)
+          .json(Helpers.formatResponse(true, 'Token refreshed successfully'));
       } catch {
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
